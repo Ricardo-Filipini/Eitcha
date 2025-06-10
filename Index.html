@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EitchaLelê! - O Infográfico</title>
+    <title>EitchaLelê! - O Infográfico V2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,47 +17,102 @@
             color: #f0f0f0;
         }
         .glassmorphism {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
         .neon-text {
             text-shadow:
-                0 0 5px #fff,
+                0 0 7px #fff,
                 0 0 10px #fff,
-                0 0 20px #ff00c1,
-                0 0 30px #ff00c1,
-                0 0 40px #ff00c1,
-                0 0 55px #ff00c1,
-                0 0 75px #ff00c1;
+                0 0 21px #fff,
+                0 0 42px #ff00c1,
+                0 0 82px #ff00c1,
+                0 0 92px #ff00c1,
+                0 0 102px #ff00c1,
+                0 0 151px #ff00c1;
+        }
+        .tab-button {
+            transition: all 0.3s ease-in-out;
         }
         .tab-button.active {
             background-color: #ff00c1;
             color: #1a1a1a;
             font-weight: 700;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #ff00c1;
         }
         .word-cloud text {
             cursor: pointer;
-            transition: fill 0.3s ease;
+            transition: fill 0.3s ease, transform 0.3s ease;
+        }
+        .word-cloud text:hover {
+            transform: scale(1.1);
+        }
+        /* Tooltip Styles */
+        [data-tooltip] {
+            position: relative;
+            cursor: pointer;
+            border-bottom: 1px dotted #ff00c1;
+        }
+        [data-tooltip]:before,
+        [data-tooltip]:after {
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+            z-index: 10;
+        }
+        [data-tooltip]:before {
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 5px;
+            padding: 7px;
+            width: 200px;
+            border-radius: 8px;
+            background-color: #111;
+            color: #fff;
+            content: attr(data-tooltip);
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+        [data-tooltip]:after {
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: -5px;
+            border: 5px solid;
+            border-color: #111 transparent transparent transparent;
+            content: '';
+        }
+        [data-tooltip]:hover:before,
+        [data-tooltip]:hover:after {
+            visibility: visible;
+            opacity: 1;
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-2 sm:p-4 md:p-8">
 
     <div class="max-w-7xl mx-auto">
         <header class="text-center mb-12">
             <h1 class="text-5xl md:text-7xl font-bold neon-text">EitchaLelê!</h1>
-            <p class="text-xl mt-4 text-gray-300">A Retrospectiva (porque ninguém aguenta mais viver no presente)</p>
+            <p class="text-lg md:text-xl mt-4 text-gray-300">A Retrospectiva V2: Agora com mais ranço e menos memória.</p>
         </header>
 
         <!-- Abas de Navegação -->
-        <div class="flex justify-center mb-8 space-x-2 md:space-x-4 glassmorphism p-2 rounded-full">
-            <button class="tab-button active py-2 px-4 rounded-full transition-all duration-300" onclick="showTab('quiz')"><i class="fas fa-question-circle mr-2"></i>Quiz da Sobrevivência</button>
-            <button class="tab-button py-2 px-4 rounded-full transition-all duration-300" onclick="showTab('topics')"><i class="fas fa-fire mr-2"></i>Tópicos da Discórdia</button>
-            <button class="tab-button py-2 px-4 rounded-full transition-all duration-300" onclick="showTab('words')"><i class="fas fa-cloud mr-2"></i>Nuvem de Palavras</button>
-            <button class="tab-button py-2 px-4 rounded-full transition-all duration-300" onclick="showTab('race')"><i class="fas fa-flag-checkered mr-2"></i>Corrida dos Assuntos</button>
+        <div class="flex justify-center flex-wrap mb-8 glassmorphism p-2 rounded-full">
+            <button class="tab-button active py-2 px-3 text-sm md:py-2 md:px-4 md:text-base rounded-full" onclick="showTab('quiz')"><i class="fas fa-question-circle mr-1 md:mr-2"></i>Quiz</button>
+            <button class="tab-button py-2 px-3 text-sm md:py-2 md:px-4 md:text-base rounded-full" onclick="showTab('topics')"><i class="fas fa-fire mr-1 md:mr-2"></i>Tópicos</button>
+            <button class="tab-button py-2 px-3 text-sm md:py-2 md:px-4 md:text-base rounded-full" onclick="showTab('words')"><i class="fas fa-cloud mr-1 md:mr-2"></i>Palavras</button>
+            <button class="tab-button py-2 px-3 text-sm md:py-2 md:px-4 md:text-base rounded-full" onclick="showTab('race')"><i class="fas fa-flag-checkered mr-1 md:mr-2"></i>Corrida</button>
         </div>
 
         <!-- Conteúdo das Abas -->
@@ -65,8 +120,9 @@
             <!-- Quiz -->
             <div id="quiz" class="tab-content">
                 <div class="glassmorphism p-6 md:p-8">
-                    <h2 class="text-3xl font-bold text-center mb-6 neon-text">Quiz da Sobrevivência EitchaLelê!</h2>
-                    <p class="text-center mb-8 text-gray-300">Acha que presta atenção no grupo? Prove. Menos de 7 acertos é rua. Sem choro.</p>
+                    <h2 class="text-3xl font-bold text-center mb-4 neon-text">Quiz da Sobrevivência EitchaLelê!</h2>
+                    <p class="text-center mb-2 text-gray-300">Pode fazer de lápis Caloro, basta enfiar ele no cú e responder o quiz.</p>
+                    <p class="text-center mb-8 text-gray-400">Acha que presta atenção no grupo? Prove. Menos de 7 acertos é rua. Sem choro.</p>
                     <div id="quiz-container"></div>
                     <div class="text-center mt-8">
                         <button id="submit-quiz" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-full transition-transform duration-300 transform hover:scale-105">Finalizar e Ver o Desastre</button>
@@ -78,8 +134,10 @@
             <!-- Tópicos -->
             <div id="topics" class="tab-content hidden">
                  <div class="glassmorphism p-6 md:p-8">
-                    <h2 class="text-3xl font-bold text-center mb-8 neon-text">Ranking dos Tópicos da Discórdia</h2>
-                    <div id="topics-container" class="space-y-6"></div>
+                    <h2 class="text-3xl font-bold text-center mb-8 neon-text">As Grandes Sagas (e vergonhas) do Grupo</h2>
+                    <div id="topics-list" class="space-y-4">
+                        <!-- Tópicos serão injetados aqui pelo JS -->
+                    </div>
                 </div>
             </div>
 
@@ -93,7 +151,7 @@
                             <option value="acumulado">Acumulado</option>
                         </select>
                     </div>
-                    <div id="word-cloud-container" class="word-cloud w-full h-96"></div>
+                    <div id="word-cloud-container" class="word-cloud w-full h-[500px]"></div>
                 </div>
             </div>
 
@@ -102,11 +160,11 @@
                 <div class="glassmorphism p-6 md:p-8">
                     <h2 class="text-3xl font-bold text-center mb-6 neon-text">Corrida Maluca dos Assuntos</h2>
                     <p class="text-center mb-4 text-gray-400">Veja a ascensão e queda dos assuntos que vocês não largam. Parece a vida de vocês: começa animado e depois... bom, vocês sabem.</p>
-                    <div class="w-full h-[500px] bg-gray-800/50 rounded-lg p-4" id="race-chart-container">
+                    <div class="w-full h-[600px] bg-gray-800/50 rounded-lg p-4" id="race-chart-container">
                          <canvas id="raceChart"></canvas>
                     </div>
                      <div class="mt-4 text-center">
-                        <button id="play-pause-race" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full"><i class="fas fa-play mr-2"></i>Iniciar</button>
+                        <button id="play-pause-race" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full"><i class="fas fa-play mr-2"></i>Iniciar Corrida</button>
                          <input type="range" id="race-slider" class="w-1/2 mt-4" min="0" max="100" value="0">
                     </div>
                 </div>
@@ -115,358 +173,320 @@
     </div>
 
     <script>
-        // --- LÓGICA DE NAVEGAÇÃO POR ABAS ---
-        function showTab(tabId) {
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- LÓGICA DE NAVEGAÇÃO POR ABAS ---
+            window.showTab = function(tabId) {
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+                document.getElementById(tabId).classList.remove('hidden');
 
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(button => button.classList.remove('active'));
-            document.querySelector(`button[onclick="showTab('${tabId}')"]`).classList.add('active');
-        }
-
-        // --- DADOS E LÓGICA DO QUIZ ---
-        const quizData = [
-            {
-                question: "Quem foi acusado de pegar o dinheiro da resenha, jogar na lotofácil e sumir?",
-                options: ["Caiolas", "CRL", "Jiji", "Thiagão"],
-                answer: "CRL"
-            },
-            {
-                question: "Qual foi a desculpa do Jiji pra dar 'ban' no Maskara durante uma discussão sobre o local da resenha?",
-                options: ["Ele foi tóxico", "Ele não pagou a mensalidade", "Ele xingou o administrador", "Não houve ban, isso é fake news"],
-                answer: "Ele foi tóxico"
-            },
-            {
-                question: "Segundo o grupo, quem não pode ver uma vergonha que já quer passar?",
-                options: ["Luan", "Caloro", "Eldin", "Cassioka"],
-                answer: "Caloro"
-            },
-            {
-                question: "Qual membro virou o 'Rei do Festival de Sorvete' após uma interação com a IA?",
-                options: ["Jiji", "Carlão", "Luan", "Caiolas"],
-                answer: "Carlão"
-            },
-             {
-                question: "Quem perguntou se precisava de 'um motivo' para postar um vídeo de mulheres dançando?",
-                options: ["Ricardo", "Arilson", "Luan", "CRL"],
-                answer: "CRL"
-            },
-            {
-                question: "Qual o apelido carinhoso que a IA deu para o Junim?",
-                options: ["Junim Gostosão", "Junim KLB", "Junim do Pé de Chibata", "Junim pegador"],
-                answer: "Junim Gostosão"
-            },
-             {
-                question: "Quem pediu o link do Dropbox da Vic Passos para o 'TCC'?",
-                options: ["Eldin", "Ricardo Filipini Pinheiro", "Caiolas", "Brankim"],
-                answer: "Ricardo Filipini Pinheiro"
-            },
-            {
-                question: "Na treta sobre o local da resenha, o que o Caiolas sugeriu que faria se a galera não decidisse logo?",
-                options: ["Ia fazer uma nova enquete", "Ia escolher sozinho", "Ia cancelar a resenha", "Ia fazer um panelão em frente ao CAD"],
-                answer: "Ia fazer um panelão em frente ao CAD"
-            },
-            {
-                question: "Qual a frase de efeito do Brankim sobre as mulheres que não davam bola para o Eldin em 2011?",
-                options: ["'Mulher é que nem biscoito, vai uma vem dezoito'", "'Se não tivesse buceta não dava nem bom dia'", "'Paciência, uma hora a certa vem'", "'O não você já tem, agora é buscar a humilhação'"],
-                answer: "'Se não tivesse buceta não dava nem bom dia'"
-            },
-            {
-                question: "Qual membro foi flagrado num vídeo com uma 'mão boba' na calabresa do CRL?",
-                options: ["Jiji", "Eldin", "Luan", "Ninguém, foi uma montagem"],
-                answer: "Eldin"
-            },
-            {
-                question: "Quem foi comparado ao 'Hagrid' por causa da barba e cabelo?",
-                options: ["Crl", "Junim", "Douglao Cabeção", "Jiji"],
-                answer: "Jiji"
-            },
-            {
-                question: "O que o Luam é viciado em consumir, segundo as histórias da IA?",
-                options: ["Whey Protein", "Cerveja", "Cacetes de Chocolate", "Pizza"],
-                answer: "Cacetes de Chocolate"
-            },
-            {
-                question: "Quem teve a audácia de mandar um áudio no grupo com a lendária frase 'Seu pai é o Tifu'?",
-                options: ["Caiolas", "Jiji", "Luan", "Eldin"],
-                answer: "Jiji"
-            },
-             {
-                question: "Quem foi acusado de querer dar 'meia hora de cú' antes de ir pra aula do Zé Roberto?",
-                options: ["Caiolas", "Ricardo Filipini Pinheiro", "Luan", "Eldin"],
-                answer: "Ricardo Filipini Pinheiro"
-            },
-             {
-                question: "Qual o valor do PIX para garantir a vaga no 'closefriends do crl'?",
-                options: ["R$50,00", "R$100,00", "R$60,00", "Depende do mês e da promoção"],
-                answer: "R$50,00"
-            }
-        ];
-
-        const quizContainer = document.getElementById('quiz-container');
-        quizData.forEach((q, index) => {
-            const questionElement = document.createElement('div');
-            questionElement.className = 'mb-8';
-            let optionsHTML = '';
-            q.options.forEach(opt => {
-                optionsHTML += `
-                    <label class="block glassmorphism p-4 rounded-lg mb-3 hover:bg-white/20 cursor-pointer transition-all duration-300">
-                        <input type="radio" name="question${index}" value="${opt}" class="mr-3">
-                        ${opt}
-                    </label>
-                `;
-            });
-            questionElement.innerHTML = `
-                <p class="text-xl font-semibold mb-4">${index + 1}. ${q.question}</p>
-                ${optionsHTML}
-            `;
-            quizContainer.appendChild(questionElement);
-        });
-
-        document.getElementById('submit-quiz').addEventListener('click', () => {
-            let score = 0;
-            quizData.forEach((q, index) => {
-                const selected = document.querySelector(`input[name="question${index}"]:checked`);
-                if (selected && selected.value === q.answer) {
-                    score++;
+                document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+                document.querySelector(`button[onclick="showTab('${tabId}')"]`).classList.add('active');
+                
+                if (tabId === 'words') {
+                    if (currentWordCloudLayout) currentWordCloudLayout.stop();
+                    drawWordCloud(wordData[monthFilter.value]);
                 }
+                 if (tabId === 'race') {
+                    if(!raceChart) {
+                         initializeRaceChart(0);
+                    }
+                }
+            }
+
+            // --- DADOS E LÓGICA DO QUIZ ---
+            const quizData = [
+                 { question: "Quem foi acusado de pegar o dinheiro da resenha, jogar na lotofácil e sumir?", options: ["Caiolas", "CRL", "Jiji", "Thiagão"], answer: "CRL" },
+                 { question: "Qual foi a desculpa do Jiji pra dar 'ban' no Maskara durante uma discussão sobre o local da resenha?", options: ["Ele foi tóxico", "Ele não pagou a mensalidade", "Ele xingou o administrador", "Não houve ban, isso é fake news"], answer: "Ele foi tóxico" },
+                 { question: "Segundo o grupo, quem não pode ver uma vergonha que já quer passar?", options: ["Luan", "Caloro", "Eldin", "Cassioka"], answer: "Caloro" },
+                 { question: "Qual membro virou o 'Rei do Festival de Sorvete' após uma interação com a IA?", options: ["Jiji", "Carlão", "Luan", "Caiolas"], answer: "Carlão" },
+                 { question: "Quem perguntou se precisava de 'um motivo' para postar um vídeo de mulheres dançando?", options: ["Ricardo", "Arilson", "Luan", "CRL"], answer: "CRL" },
+                 { question: "Qual o apelido carinhoso que a IA deu para o Junim?", options: ["Junim Gostosão", "Junim KLB", "Junim do Pé de Chibata", "Junim pegador"], answer: "Junim Gostosão" },
+                 { question: "Quem pediu o link do Dropbox da Vic Passos para o 'TCC'?", options: ["Eldin", "Ricardo Filipini Pinheiro", "Caiolas", "Brankim"], answer: "Ricardo Filipini Pinheiro" },
+                 { question: "Na treta sobre o local da resenha, o que o Caiolas sugeriu que faria se a galera não decidisse logo?", options: ["Ia fazer uma nova enquete", "Ia escolher sozinho", "Ia cancelar a resenha", "Ia fazer um panelão em frente ao CAD"], answer: "Ia fazer um panelão em frente ao CAD" },
+                 { question: "Qual a frase de efeito do Brankim sobre as mulheres que não davam bola para o Eldin em 2011?", options: ["'Mulher é que nem biscoito, vai uma vem dezoito'", "'Se não tivesse buceta não dava nem bom dia'", "'Paciência, uma hora a certa vem'", "'O não você já tem, agora é buscar a humilhação'"], answer: "'Se não tivesse buceta não dava nem bom dia'" },
+                 { question: "Qual membro foi flagrado num vídeo com uma 'mão boba' na calabresa do CRL?", options: ["Jiji", "Eldin", "Luan", "Ninguém, foi uma montagem"], answer: "Eldin" },
+                 { question: "Quem foi comparado ao 'Hagrid' por causa da barba e cabelo?", options: ["Crl", "Junim", "Douglao Cabeção", "Jiji"], answer: "Jiji" },
+                 { question: "O que o Luam é viciado em consumir, segundo as histórias da IA?", options: ["Whey Protein", "Cerveja", "Cacetes de Chocolate", "Pizza"], answer: "Cacetes de Chocolate" },
+                 { question: "Quem teve a audácia de mandar um áudio no grupo com a lendária frase 'Seu pai é o Tifu'?", options: ["Caiolas", "Jiji", "Luan", "Eldin"], answer: "Jiji" },
+                 { question: "Quem foi acusado de querer dar 'meia hora de cú' antes de ir pra aula do Zé Roberto?", options: ["Caiolas", "Ricardo Filipini Pinheiro", "Luan", "Eldin"], answer: "Ricardo Filipini Pinheiro" },
+                 { question: "Qual o valor do PIX para garantir a vaga no 'closefriends do crl'?", options: ["R$50,00", "R$100,00", "R$60,00", "Depende do mês e da promoção"], answer: "R$50,00" }
+            ];
+
+            const quizContainer = document.getElementById('quiz-container');
+            quizData.forEach((q, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.className = 'mb-8';
+                let optionsHTML = '';
+                q.options.forEach(opt => {
+                    optionsHTML += `
+                        <label class="block glassmorphism p-4 rounded-lg mb-3 hover:bg-white/20 cursor-pointer transition-all duration-300">
+                            <input type="radio" name="question${index}" value="${opt}" class="mr-3 accent-pink-500">
+                            ${opt}
+                        </label>`;
+                });
+                questionElement.innerHTML = `
+                    <p class="text-xl font-semibold mb-4">${index + 1}. ${q.question}</p>
+                    ${optionsHTML}`;
+                quizContainer.appendChild(questionElement);
             });
+
+            document.getElementById('submit-quiz').addEventListener('click', () => {
+                let score = 0;
+                quizData.forEach((q, index) => {
+                    const selected = document.querySelector(`input[name="question${index}"]:checked`);
+                    if (selected && selected.value === q.answer) {
+                        score++;
+                    }
+                });
+                
+                const resultsDiv = document.getElementById('quiz-results');
+                let message = `Você acertou ${score} de ${quizData.length}. `;
+                if (score < 7) {
+                    message += "Sinto muito, parece que você não sobreviveu. Arrume suas malas. Foi bom enquanto durou. 🎒👋";
+                    resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-red-500';
+                } else if (score < 12) {
+                    message += "Passou raspando, hein? Pode ficar, mas tá de recuperação. Na próxima, a gente te expulsa com gosto. 👀";
+                     resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-yellow-400';
+                } else {
+                    message += "Impressionante! Você é um verdadeiro EitchaLelêker. Ou não tem mais o que fazer da vida. De qualquer forma, parabéns. 🏆";
+                     resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-green-400';
+                }
+                resultsDiv.textContent = message;
+            });
+
+            // --- DADOS E LÓGICA DOS TÓPICOS ---
+            const topicsData = [
+                {
+                    title: "A Crise Existencial do Engenheiro",
+                    message: "Um tema recorrente que une o grupo na desgraça. A dura realidade pós-UFG, onde o sonho de ser engenheiro virou um pesadelo de <span data-tooltip='Pagar 450 conto pra dormir no chão e ouvir pagode? Onde a gente assina?'>fazer concurso</span>, virar <span data-tooltip='\"Cada um leva sua bebida\", o famoso lema do universitário quebrado que virou engenheiro quebrado.'>Uber</span> ou vender pote de creatina. Uma verdadeira aula de como o diploma serve para decorar a parede enquanto a gente se pergunta onde errou.",
+                    quotes: [
+                        { user: "Eldin", text: "Estou estudando para concurso, se depender de engenharia tô fudido vou ter que trabalhar a noite de Uber" },
+                        { user: "Douglao Cabeção", "text": "Eng civil só arranja emprego bom qm tem contato. Emprego normal o cara quer te pagar 2k pra tocar obra pra ele. Se nao quiser tem quem queira" },
+                        { user: "Ricardo Filipini Pinheiro", text: "Tô nessa tmb, não pela grana pq tava até tirando mais na iniciativa privada, mas pela mamatinha." }
+                    ]
+                },
+                {
+                    title: "A Ditadura do Jiji",
+                    message: "Quando o Jiji está no comando, a democracia tira férias. Dono de um <span data-tooltip='Ameaça sutil que já causou mais medo que prova do Zé Roberto.'>spray de pimenta</span> e de um dedo nervoso no botão 'remover do grupo', ele rege o EitchaLelê com punho de ferro. As eleições são meras formalidades e a sua palavra é a lei. Ai de quem discordar. #ForaDitador #VoltaDemocracia (só que não).",
+                    quotes: [
+                        { user: "Luan Shock ⚡", text: "Viva ditadura jijiriana" },
+                        { user: "Jiji", "text": "Votação encerrada. Agradecemos a todos que exerceram o sufrágio de forma voluntária e transparente." },
+                        { user: "Dé", text: "Cara queria me dar voz de prisão aqui na festa mano. Sorte q a Barbara meteu a oab." }
+                    ]
+                },
+                {
+                    title: "Caloro e a Geografia Pararela",
+                    message: "Para o Caloro, <span data-tooltip='Claramente cidades irmãs no Caloroverso.'>Jataí e Inhumas</span> são praticamente o mesmo lugar. Uma confusão geográfica que se tornou um clássico, provando que você pode tirar o homem da UFG, mas não pode tirar a UFG (e suas sequelas) do homem. O importante é que a intenção era boa... eu acho.",
+                    quotes: [
+                        { user: "Caloro", text: "@556298085153 ainda tá em Jataí? Daqui uns tempos tô indo para aí" },
+                        { user: "Thiagão", "text": "Branquim é de inhumas é não?" },
+                        { user: "+55 62 9808-5153", text: "De fato não me surpreende" }
+                    ]
+                },
+                 {
+                    title: "O Vício Incontrolável do Luam",
+                    message: "A IA revelou o que todos suspeitavam: o vício do Luam não é em whey, nem em vida fitness, mas em 'cacetes'. A saga do 'cacete veiudo', do 'cacete de chocolate' e do 'cacete gigante' entrou para o folclore do grupo. Uma história de desejo, indulgência e a busca incessante pelo próximo <span data-tooltip='A IA garante que são deliciosos. Quem somos nós pra duvidar?'>cacete</span>.",
+                    quotes: [
+                        { user: "Arilson", text: "@13135550002 em um universo em que a palavra “sorvete” é dita como “cacete”, descreva como seria uma situação..." },
+                        { user: "Ricardo Filipini Pinheiro", "text": "@13135550002 e o cacete? O @556282214144 (Luam bixinha) é o Luam dessa história" },
+                        { user: "Meta AI", text: "Luam, você está preparado para saborear o cacete veiudo mais épico da festa?" }
+                    ]
+                },
+                {
+                    title: "A Saga do Zé Roberto",
+                    message: "O nome que causa calafrios em gerações de engenheiros. Zé Roberto, a lenda, o mito, o terror de TransCal. As histórias sobre suas provas e seu humor peculiar são passadas de calouro para veterano. A maior prova de que sobrevivemos à UFG não é o diploma, mas sim ter passado por suas aulas e ainda conseguir rir (de nervoso).",
+                    quotes: [
+                        { user: "Caiolas", text: "Prefiro dar o cu da meia noite ate as 5:00, e pegar aula do ze roberto na sequencia" },
+                        { user: "Jiji", text: "Falou que o Zé Roberto tá simplesmente tá uma uva. Passa a turma inteira sem olhar" },
+                        { user: "Eldin", text: "chega uma hora que cansa de comer cus né" }
+                    ]
+                },
+            ];
             
-            const resultsDiv = document.getElementById('quiz-results');
-            let message = `Você acertou ${score} de ${quizData.length}. `;
-            if (score < 7) {
-                message += "Sinto muito, parece que você não sobreviveu. Arrume suas malas. Foi bom enquanto durou. 🎒👋";
-                resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-red-500';
-            } else if (score < 12) {
-                message += "Passou raspando, hein? Pode ficar, mas tá de recuperação. Na próxima, a gente te expulsa com gosto. 👀";
-                 resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-yellow-400';
-            } else {
-                message += "Impressionante! Você é um verdadeiro EitchaLelêker. Ou não tem mais o que fazer da vida. De qualquer forma, parabéns. 🏆";
-                 resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-green-400';
+            const topicsList = document.getElementById('topics-list');
+
+            function toggleTopic(index) {
+                const contentDiv = document.getElementById(`topic-content-${index}`);
+                const icon = document.getElementById(`topic-icon-${index}`);
+                
+                if (contentDiv.classList.contains('active')) {
+                    contentDiv.style.maxHeight = '0px';
+                    contentDiv.classList.remove('active');
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                } else {
+                     // Lazy load content
+                    if(contentDiv.innerHTML === '') {
+                        const topic = topicsData[index];
+                        let quotesHTML = '';
+                         topic.quotes.forEach(quote => {
+                            quotesHTML += `
+                                <div class="glassmorphism p-3 rounded-md mt-2">
+                                    <p class="italic text-gray-300">"${quote.text}"</p>
+                                    <p class="text-right font-semibold text-pink-400">- ${quote.user}</p>
+                                </div>`;
+                        });
+                         contentDiv.innerHTML = `<p class="mt-2 text-gray-200">${topic.message}</p>${quotesHTML}`;
+                    }
+                    contentDiv.style.maxHeight = contentDiv.scrollHeight + "px";
+                    contentDiv.classList.add('active');
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                }
             }
-            resultsDiv.textContent = message;
-        });
-        
-        
-        // --- DADOS E LÓGICA DOS TÓPICOS ---
-        const topicsData = [
-            {
-                title: "Resenha Eitcha Lelê 10 Anos (A Saga Sem Fim)",
-                message: "A organização dessa resenha foi mais longa e complicada que tese de doutorado. Começou na Serra da Mesa, virou festival, mudou de data umas 15 vezes e terminou num churrasco no Clube de Engenharia. No fim, o que importou foi a jornada (e as tretas no caminho). Uma verdadeira ode à nossa capacidade de complicar o simples. #EternaPromessa",
-                quotes: [
-                    { user: "Caiolas", text: "Sonhei essa noite que eu tava inadiplente 2 meses e seis me cobrando kkkkkkkkkkkk" },
-                    { user: "Thiagão", "text": "Quero saber quanto está meu saldo corrigido depois de todo esse tempo investido" },
-                    { user: "Crl", text: "Devido a alta aderência do festival Eitcha lelê 10 years (10 pessoas), o comitê organizador do evento levantou as seguintes hipóteses..." }
-                ]
-            },
-             {
-                title: "OnlyFans & CloseFriends do CRL",
-                message: "A maior pirâmide financeira desde o Egito antigo. CRL, nosso tesoureiro/agiota/empresário do entretenimento adulto, prometeu mundos e fundos. O resultado? Ninguém sabe ao certo, mas a cobrança nunca parou. Se alguém ficou rico com isso, ainda é um mistério. O que não é mistério é a nossa capacidade de cair em qualquer golpe que prometa diversão.",
-                quotes: [
-                    { user: "Crl", text: "Aqueles que não estão em dia, por favor fazer o pix, aqueles que ainda não assinaram o onlyfriends do crl, não percam essa oportunidade" },
-                    { user: "Thiagão", text: "Cobrador jogou o que já tinha arrecadado na loteria e sumiu" },
-                    { user: "+55 62 9808-5153", text: "Ceis cairam na pirâmide do crl. Eu ja peguei meus rendimentos de volta" }
-                ]
-            },
-            {
-                title: "As Enquetes (Democracia ou Ditadura?)",
-                message: "Nenhuma decisão nesse grupo é simples. Do local do barzinho ao dia da resenha, tudo vira uma eleição mais disputada que a presidência. Com direito a boca de urna, compra de votos e reviravoltas no segundo turno. No fim, a 'democracia' sempre vence... ou a paciência do Jiji acaba e ele decide por todos. #VotoDeCabresto",
-                quotes: [
-                     { user: "Ricardo Filipini Pinheiro", text: "ENQUETE: Boleto deveria voltar pro grupo? Sim (7 votos), Não (0 voto), Quem e boleto? (2 votos)" },
-                     { user: "Jiji", text: "Votações encerradas 🗳️. Votação do horário: 18:45 / 1.5, 18:30 / 0.66... Voto do alisson e Luam vale 0.33" },
-                     { user: "Caiolas", "text": "Bora votacao de 3o turno" }
-                ]
-            },
-            {
-                title: "IA no Grupo: O Futuro Chegou (e é Zueiro)",
-                message: "A chegada da Meta AI foi um marco. De repente, tínhamos uma estagiária para criar poemas, histórias e imagens que beiram o absurdo. Ela aprendeu rápido nosso dialeto, principalmente a diferença crucial entre 'sorvete' e 'cacete'. A IA pode até dominar o mundo um dia, mas primeiro, terá que sobreviver ao EitchaLelê.",
-                quotes: [
-                    { user: "Arilson", text: "@13135550002 em um universo em que a palavra “sorvete” é dita como “cacete”, descreva como seria uma situação..." },
-                    { user: "Ricardo Filipini Pinheiro", text: "@13135550002 imagine o 'Luam' e o 'Jiji' da história que você contou. O queixo do Jiji acertou." },
-                    { user: "Eldin", text: "É essa meta aí que dizem que vai dominar o mundo? Kkkk Não sabe nem responder o óbvio" }
-                ]
-            },
-             {
-                title: "Tretas de Futebol & A Seleção",
-                message: "Entre o sofrimento com Corinthians, Goiás, Vila e a descrença total na seleção brasileira, o futebol é nosso esporte favorito... pra reclamar. As discussões são sempre acaloradas, com análises táticas dignas de mesa redonda e cornetadas que fariam qualquer técnico pedir demissão. A única certeza é que, não importa o time, a paixão pela zoeira é o que nos une.",
-                quotes: [
-                     { user: "Crl", text: "Corinthians, Goiás, Brasil. Não sei qual o pior." },
-                     { user: "Eldin", text: "Esse vini jr n amarra as chuteiras do menino ney" },
-                     { user: "Arilson", "text": "Essa seleção se for jogar contra o Goiás domingo na serrinha as 16hrs toma um vareio" }
-                ]
-            }
-        ];
-        
-        const topicsContainer = document.getElementById('topics-container');
-        topicsData.forEach(topic => {
-            const topicElement = document.createElement('div');
-            topicElement.className = 'glassmorphism p-6 rounded-lg';
-            
-            let quotesHTML = '<div class="mt-4 border-t border-white/20 pt-4 space-y-3">';
-            topic.quotes.forEach(quote => {
-                quotesHTML += `
-                    <div class="glassmorphism p-3 rounded-md">
-                        <p class="italic text-gray-300">"${quote.text}"</p>
-                        <p class="text-right font-semibold text-pink-400">- ${quote.user}</p>
+            window.toggleTopic = toggleTopic;
+
+            topicsData.forEach((topic, index) => {
+                const topicElement = document.createElement('div');
+                topicElement.className = 'glassmorphism rounded-lg overflow-hidden';
+                topicElement.innerHTML = `
+                    <h3 class="text-xl md:text-2xl font-bold text-pink-400 p-4 cursor-pointer flex justify-between items-center" onclick="toggleTopic(${index})">
+                        <span>${topic.title}</span>
+                        <i id="topic-icon-${index}" class="fas fa-chevron-down transition-transform duration-300"></i>
+                    </h3>
+                    <div id="topic-content-${index}" class="px-4 transition-max-height duration-500 ease-in-out" style="max-height: 0;">
                     </div>
                 `;
+                topicsList.appendChild(topicElement);
             });
-            quotesHTML += '</div>';
-
-            topicElement.innerHTML = `
-                <h3 class="text-2xl font-bold text-pink-400">${topic.title}</h3>
-                <p class="mt-2 text-gray-200">${topic.message}</p>
-                ${quotesHTML}
-            `;
-            topicsContainer.appendChild(topicElement);
-        });
-        
-         // --- DADOS E LÓGICA DA NUVEM DE PALAVRAS ---
-        const wordData = {
-            "acumulado": [
-                {text: "kkk", size: 100}, {text: "resenha", size: 95}, {text: "eitcha", size: 92},
-                {text: "crl", size: 90}, {text: "luan", size: 88}, {text: "jiji", size: 85},
-                {text: "caiolas", size: 82}, {text: "junim", size: 79}, {text: "thiagão", size: 76},
-                {text: "eldin", size: 73}, {text: "cassioka", size: 70}, {text: "caloro", size: 68},
-                {text: "amigo", size: 65}, {text: "galera", size: 62}, {text: "anexo", size: 60},
-                {text: "grupo", size: 58}, {text: "parabéns", size: 55}, {text: "bora", size: 53},
-                {text: "vida", size: 50}, {text: "sorvete", size: 48}, {text: "cacete", size: 47},
-                {text: "lake", size: 45}, {text: "show", size: 42}, {text: "IA", size: 40},
-                {text: "festa", size: 38}, {text: "bar", size: 36}, {text: "natal", size: 34},
-                {text: "amor", size: 32}, {text: "sempre", size: 30}, {text: "mulher", size: 28}
-            ],
-            "02/2023": [
-                {text: "pesado", size: 80}, {text: "vídeo", size: 70}, {text: "jogo", size: 60},
-                {text: "sinop", size: 50}, {text: "polícia", size: 40}
-            ],
-            "03/2023": [
-                {text: "resenha", size: 90}, {text: "pix", size: 85}, {text: "crl", size: 80},
-                {text: "jiji", size: 75}, {text: "eBook", size: 60}, {text: "amigo", size: 50}
-            ],
-             "04/2023": [
-                {text: "inadimplente", size: 85}, {text: "cobrador", size: 75}, {text: "pirâmide", size: 70},
-                {text: "crl", size: 65}, {text: "closefriends", size: 60}
-            ],
-            "05/2023": [
-                {text: "parabéns", size: 90}, {text: "luan", size: 85}, {text: "significa", size: 70},
-                {text: "vida", size: 65}, {text: "felicidades", size: 60}
-            ],
-             "06/2023": [
-                {text: "dropbox", size: 88}, {text: "fotos", size: 80}, {text: "TCC", size: 75},
-                {text: "vicpassos", size: 70}, {text: "saudades", size: 65}
-            ],
-             "09/2023": [
-                {text: "enquete", size: 95}, {text: "votar", size: 90}, {text: "chácara", size: 80},
-                {text: "gyn", size: 75}, {text: "bebida", size: 65}
-            ],
-             "10/2023": [
-                {text: "eitcha", size: 90}, {text: "festa", size: 85}, {text: "clube", size: 80},
-                {text: "confirmados", size: 75}, {text: "churrasco", size: 70}
-            ],
-            "12/2024": [
-                {text: "confra", size: 92}, {text: "data", size: 85}, {text: "votação", size: 80},
-                {text: "local", size: 75}, {text: "jiji", size: 70}, {text: "barzim", size: 60}
-            ]
-        };
-
-        const monthFilter = document.getElementById('month-filter');
-        Object.keys(wordData).forEach(key => {
-            if (key !== 'acumulado') {
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = key;
-                monthFilter.appendChild(option);
-            }
-        });
-
-        let currentWordCloudLayout;
-
-        function drawWordCloud(data) {
-            const container = document.getElementById('word-cloud-container');
-            container.innerHTML = ''; 
-            const width = container.clientWidth;
-            const height = container.clientHeight;
             
-            const fill = d3.scaleOrdinal(d3.schemeCategory10);
+            // --- DADOS E LÓGICA DA NUVEM DE PALAVRAS ---
+             const wordData = {
+                "acumulado": [
+                    {text: "kkk", size: 100}, {text: "eitcha", size: 98}, {text: "resenha", size: 95},
+                    {text: "crl", size: 90}, {text: "luan", size: 88}, {text: "jiji", size: 85},
+                    {text: "amigo", size: 82}, {text: "grupo", size: 80}, {text: "parabéns", size: 78},
+                    {text: "caiolas", size: 76}, {text: "junim", size: 74}, {text: "thiagão", size: 72},
+                    {text: "eldin", size: 70}, {text: "cassioka", size: 68}, {text: "caloro", size: 66},
+                    {text: "vida", size: 60}, {text: "amor", size: 58}, {text: "IA", size: 56},
+                    {text: "enquete", size: 55}, {text: "festa", size: 54}, {text: "bar", size: 52},
+                    {text: "cacete", size: 51}, {text: "sorvete", size: 50}, {text: "lake", size: 48},
+                    {text: "ditadura", size: 45}, {text: "saudades", size: 42}, {text: "pqp", size: 40},
+                    {text: "homens", size: 38}, {text: "mulher", size: 36}, {text: "toma", size: 34},
+                    {text: "cu", size: 33}, {text: "ban", size: 30}, {text: "tcc", size: 28},
+                    {text: "pau", size: 26}, {text: "droga", size: 22}, {text: "vergonha", size: 20}
+                ],
+                "02/2023": [{text: "pesado", size: 85}, {text: "vídeo", size: 75}, {text: "jogo", size: 68}, {text: "sinop", size: 60}, {text: "polícia", size: 55}, {text: "amigo", size: 40}],
+                "03/2023": [{text: "resenha", size: 95}, {text: "pix", size: 90}, {text: "crl", size: 88}, {text: "jiji", size: 80}, {text: "eBook", size: 70}, {text: "júnior", size: 60}],
+                "09/2023": [{text: "enquete", size: 100}, {text: "votar", size: 92}, {text: "chácara", size: 85}, {text: "gyn", size: 80}, {text: "bebida", size: 75}, {text: "data", size: 70}],
+                "10/2023": [{text: "festa", size: 90}, {text: "clube", size: 85}, {text: "confirmados", size: 80}, {text: "churrasco", size: 78}, {text: "crl", size: 75}, {text: "IA", size: 70}],
+                "12/2024": [{text: "confra", size: 95}, {text: "data", size: 88}, {text: "votação", size: 82}, {text: "local", size: 78}, {text: "jiji", size: 75}, {text: "barzim", size: 65}, {text: "pode", size: 50}],
+                "01/2025": [{text: "ney", size: 90}, {text: "jogo", size: 80}, {text: "time", size: 75}, {text: "thiagão", size: 68}, {text: "jiji", size: 65}, {text: "ditador", size: 60}],
+            };
 
-            const maxSize = d3.max(data, d => d.size);
-            const sizeScale = d3.scaleLinear().domain([0, maxSize]).range([10, 80]);
+            const monthFilter = document.getElementById('month-filter');
+            Object.keys(wordData).forEach(key => {
+                if (key !== 'acumulado') {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = key;
+                    monthFilter.appendChild(option);
+                }
+            });
 
-            currentWordCloudLayout = d3.layout.cloud()
-                .size([width, height])
-                .words(data.map(d => ({ text: d.text, size: sizeScale(d.size) })))
-                .padding(5)
-                .rotate(() => (~~(Math.random() * 6) - 3) * 30)
-                .font("Poppins")
-                .fontSize(d => d.size)
-                .on("end", draw);
+            let currentWordCloudLayout;
+            function drawWordCloud(data) {
+                const container = document.getElementById('word-cloud-container');
+                container.innerHTML = ''; 
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                
+                const fill = d3.scaleOrdinal(["#ff00c1", "#a000ff", "#00c1ff", "#00ffc1", "#c1ff00", "#ffc100", "#ff7c00"]);
+                const maxSize = d3.max(data, d => d.size);
+                const sizeScale = d3.scaleLinear().domain([0, maxSize]).range([12, 110]);
 
-            currentWordCloudLayout.start();
+                currentWordCloudLayout = d3.layout.cloud()
+                    .size([width, height])
+                    .words(data.map(d => ({ text: d.text, size: sizeScale(d.size) })))
+                    .padding(5)
+                    .rotate(() => (Math.random() > 0.5 ? 0 : 90))
+                    .font("Poppins")
+                    .fontWeight(600)
+                    .fontSize(d => d.size)
+                    .on("end", draw);
 
-            function draw(words) {
-                d3.select(container).append("svg")
-                    .attr("width", width)
-                    .attr("height", height)
-                    .append("g")
-                    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-                    .selectAll("text")
-                    .data(words)
-                    .enter().append("text")
-                    .style("font-size", d => d.size + "px")
-                    .style("font-family", "Poppins")
-                    .style("fill", (d, i) => fill(i))
-                    .attr("text-anchor", "middle")
-                    .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
-                    .text(d => d.text);
+                currentWordCloudLayout.start();
+
+                function draw(words) {
+                    d3.select(container).append("svg")
+                        .attr("width", "100%")
+                        .attr("height", "100%")
+                        .attr('viewBox', `0 0 ${width} ${height}`)
+                        .append("g")
+                        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+                        .selectAll("text")
+                        .data(words)
+                        .enter().append("text")
+                        .style("font-size", d => d.size + "px")
+                        .style("font-family", "Poppins")
+                        .style("fill", (d, i) => fill(i))
+                        .attr("text-anchor", "middle")
+                        .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
+                        .text(d => d.text);
+                }
             }
-        }
-        
-        monthFilter.addEventListener('change', (e) => {
-             if (currentWordCloudLayout) currentWordCloudLayout.stop();
-            drawWordCloud(wordData[e.target.value]);
-        });
-        
-        drawWordCloud(wordData['acumulado']);
-        
-        // --- RACE CHART ---
-        const raceCtx = document.getElementById('raceChart').getContext('2d');
-        let raceChart;
-        let raceInterval;
-        let currentWeek = 0;
-        
-        const raceLabels = ["Resenha 10y", "OnlyFans CRL", "IA / Cacete", "Tretas Futebol", "Enquetes"];
-        const raceData = {
-            "Semana 1": [10, 5, 2, 3, 8],
-            "Semana 2": [15, 8, 5, 4, 12],
-            "Semana 3": [25, 15, 7, 6, 20],
-            "Semana 4": [40, 20, 10, 8, 30],
-            "Semana 5": [50, 22, 15, 10, 35],
-            "Semana 6": [60, 25, 25, 12, 40],
-            "Semana 7": [75, 30, 40, 15, 55],
-            "Semana 8": [80, 35, 55, 18, 60],
-            "Semana 9": [90, 40, 70, 20, 70],
-            "Semana 10": [100, 45, 85, 22, 75],
-        };
+            
+            monthFilter.addEventListener('change', (e) => {
+                 if (currentWordCloudLayout) currentWordCloudLayout.stop();
+                drawWordCloud(wordData[e.target.value]);
+            });
 
-        const weeks = Object.keys(raceData);
-        const slider = document.getElementById('race-slider');
-        slider.max = weeks.length - 1;
+            // --- RACE CHART ---
+            const raceCtx = document.getElementById('raceChart');
+            let raceChart;
+            let raceInterval;
+            let currentMonthIndex = 0;
+            
+            const raceDataMonthly = [
+              { month: "Fev/23", data: { "Videos Pesados": 80, "Resenha 10y": 10, "Futebol": 5, "IA": 1, "Enquetes": 2, "Engenharia": 3 } },
+              { month: "Mar/23", data: { "Resenha 10y": 90, "Videos Pesados": 82, "OnlyFans CRL": 50, "Futebol": 8, "IA": 2, "Enquetes": 5, "Engenharia": 4 } },
+              { month: "Abr/23", data: { "Resenha 10y": 120, "OnlyFans CRL": 80, "Videos Pesados": 85, "Futebol": 12, "IA": 3, "Enquetes": 8, "Engenharia": 6 } },
+              { month: "Set/23", data: { "Enquetes": 110, "Resenha 10y": 150, "Engenharia": 70, "OnlyFans CRL": 85, "Videos Pesados": 90, "Futebol": 15, "IA": 10 } },
+              { month: "Out/23", data: { "Resenha 10y": 200, "IA": 90, "Enquetes": 115, "Engenharia": 75, "OnlyFans CRL": 90, "Futebol": 20, "Videos Pesados": 92 } },
+              { month: "Dez/24", data: { "Enquetes": 180, "IA": 120, "Resenha 10y": 210, "Engenharia": 80, "Futebol": 40, "OnlyFans CRL": 95, "Videos Pesados": 95 } },
+              { month: "Jan/25", data: { "Futebol": 100, "IA": 130, "Enquetes": 185, "Resenha 10y": 215, "Engenharia": 85, "OnlyFans CRL": 100, "Videos Pesados": 98 } },
+              { month: "Fev/25", data: { "Engenharia": 150, "Futebol": 110, "IA": 140, "Enquetes": 190, "Resenha 10y": 220, "OnlyFans CRL": 105, "Videos Pesados": 100 } },
+            ];
 
-        function updateRaceChart(weekIndex) {
-             const week = weeks[weekIndex];
-            if (!raceChart) {
+            const months = raceDataMonthly.map(d => d.month);
+            const slider = document.getElementById('race-slider');
+            slider.max = months.length - 1;
+
+            const playPauseBtn = document.getElementById('play-pause-race');
+
+            function sortDataForChart(monthIndex) {
+                const monthData = raceDataMonthly[monthIndex].data;
+                return Object.entries(monthData)
+                    .sort(([,a],[,b]) => b-a)
+                    .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+            }
+
+            function updateRaceChart(monthIndex) {
+                const sortedData = sortDataForChart(monthIndex);
+                const labels = Object.keys(sortedData);
+                const data = Object.values(sortedData);
+                const monthLabel = raceDataMonthly[monthIndex].month;
+
+                raceChart.data.labels = labels;
+                raceChart.data.datasets[0].data = data;
+                raceChart.options.plugins.title.text = `Popularidade dos Assuntos - ${monthLabel}`;
+                raceChart.update();
+            }
+
+            function initializeRaceChart(monthIndex) {
+                const sortedData = sortDataForChart(monthIndex);
+                const labels = Object.keys(sortedData);
+                const data = Object.values(sortedData);
+                const monthLabel = raceDataMonthly[monthIndex].month;
+
                 raceChart = new Chart(raceCtx, {
                     type: 'bar',
                     data: {
-                        labels: raceLabels,
+                        labels: labels,
                         datasets: [{
-                            label: `Acumulado até ${week}`,
-                            data: raceData[week],
-                            backgroundColor: ['#ff00c1', '#a000ff', '#00c1ff', '#00ffc1', '#c1ff00'],
-                            borderColor: '#1a1a1a',
-                            borderWidth: 2
+                            data: data,
+                            backgroundColor: ['#ff00c1', '#a000ff', '#00c1ff', '#00ffc1', '#c1ff00', '#ffc100', '#ff7c00'],
+                            borderWidth: 0
                         }]
                     },
                     options: {
@@ -474,76 +494,71 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: {
-                                display: true,
-                                labels: { color: '#f0f0f0', font: { size: 14 } }
-                            },
+                            legend: { display: false },
                             title: {
                                 display: true,
-                                text: `Popularidade dos Assuntos - ${week}`,
+                                text: `Popularidade dos Assuntos - ${monthLabel}`,
                                 color: '#f0f0f0',
                                 font: { size: 18 }
                             }
                         },
                          scales: {
                             x: {
-                                ticks: { color: '#f0f0f0' },
-                                grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                                ticks: { color: '#f0f0f0', font: { size: 12 } },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
                             },
                             y: {
-                                ticks: { color: '#f0f0f0' },
+                                ticks: { color: '#f0f0f0', font: { size: 14 } },
                                 grid: { display: false }
                             }
+                        },
+                        animation: {
+                            duration: 800,
+                            easing: 'easeInOutCubic'
                         }
                     }
                 });
-            } else {
-                 raceChart.data.datasets[0].data = raceData[week];
-                 raceChart.options.plugins.title.text = `Popularidade dos Assuntos - ${week}`;
-                 raceChart.update('none'); 
             }
-        }
-        
-        const playPauseBtn = document.getElementById('play-pause-race');
 
-        function playRace() {
-            clearInterval(raceInterval);
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pausar';
-            raceInterval = setInterval(() => {
-                currentWeek++;
-                if (currentWeek >= weeks.length) {
-                    currentWeek = 0;
+            function playRace() {
+                clearInterval(raceInterval);
+                playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pausar';
+                raceInterval = setInterval(() => {
+                    currentMonthIndex++;
+                    if (currentMonthIndex >= months.length) {
+                        currentMonthIndex = 0;
+                    }
+                    slider.value = currentMonthIndex;
+                    updateRaceChart(currentMonthIndex);
+                }, 2000);
+            }
+            
+            function pauseRace() {
+                clearInterval(raceInterval);
+                playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Continuar';
+            }
+
+            playPauseBtn.addEventListener('click', () => {
+                 if (raceInterval) {
+                    pauseRace();
+                    raceInterval = null;
+                } else {
+                    playRace();
                 }
-                slider.value = currentWeek;
-                updateRaceChart(currentWeek);
-            }, 1500);
-        }
-        
-        function pauseRace() {
-            clearInterval(raceInterval);
-            playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Continuar';
-        }
+            });
 
-        playPauseBtn.addEventListener('click', () => {
-             if (raceInterval) {
-                pauseRace();
+            slider.addEventListener('input', (e) => {
+                clearInterval(raceInterval);
                 raceInterval = null;
-            } else {
-                playRace();
-            }
+                playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Iniciar Corrida';
+                currentMonthIndex = parseInt(e.target.value, 10);
+                updateRaceChart(currentMonthIndex);
+            });
+
+            // Call initializers
+            drawWordCloud(wordData['acumulado']);
+            initializeRaceChart(0);
         });
-
-        slider.addEventListener('input', (e) => {
-            clearInterval(raceInterval);
-            raceInterval = null;
-            playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Iniciar';
-            currentWeek = parseInt(e.target.value, 10);
-            updateRaceChart(currentWeek);
-        });
-
-        // Inicializar o gráfico com a primeira semana
-        updateRaceChart(0);
-
     </script>
 </body>
 </html>
