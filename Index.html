@@ -3,307 +3,547 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retrospectiva EitchaLelê!</title>
+    <title>EitchaLelê! - O Infográfico</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-    <script src="https://cdn.jsdelivr.net/npm/d3-cloud@1.2.7/build/d3.layout.cloud.min.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-cloud@1.2.5/build/d3.layout.cloud.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827; /* bg-gray-900 */
+            font-family: 'Poppins', sans-serif;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
         }
-        .montserrat {
-            font-family: 'Montserrat', sans-serif;
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .neon-text {
+            text-shadow:
+                0 0 5px #fff,
+                0 0 10px #fff,
+                0 0 20px #ff00c1,
+                0 0 30px #ff00c1,
+                0 0 40px #ff00c1,
+                0 0 55px #ff00c1,
+                0 0 75px #ff00c1;
         }
         .tab-button.active {
-            background-color: #3b82f6; /* bg-blue-600 */
-            color: white;
+            background-color: #ff00c1;
+            color: #1a1a1a;
+            font-weight: 700;
         }
-        .tab-button {
-            transition: all 0.3s ease;
-        }
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.7);
-            animation: fadeIn 0.3s;
-        }
-        .modal-content {
-            background-color: #1f2937; /* bg-gray-800 */
-            margin: 10% auto;
-            padding: 24px;
-            border: 1px solid #4b5563; /* border-gray-600 */
-            width: 90%;
-            max-width: 600px;
-            border-radius: 12px;
-        }
-        .quiz-option {
-            transition: all 0.2s ease;
-        }
-        .quiz-option:hover {
-            background-color: #374151; /* bg-gray-700 */
-        }
-        .correct {
-            background-color: #16a34a !important; /* bg-green-600 */
-            color: white;
-            border-color: #16a34a;
-        }
-        .incorrect {
-            background-color: #dc2626 !important; /* bg-red-600 */
-            color: white;
-            border-color: #dc2626;
+        .word-cloud text {
+            cursor: pointer;
+            transition: fill 0.3s ease;
         }
     </style>
 </head>
-<body class="text-gray-200">
+<body class="p-4 md:p-8">
 
-    <div class="container mx-auto p-4 md:p-8">
-        <header class="text-center mb-8">
-            <h1 class="montserrat text-4xl md:text-5xl font-bold text-white tracking-tight">Retrospectiva EitchaLelê!</h1>
-            <p class="text-lg text-gray-400 mt-2">Uma análise profunda e bem-humorada das suas conversas.</p>
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-12">
+            <h1 class="text-5xl md:text-7xl font-bold neon-text">EitchaLelê!</h1>
+            <p class="text-xl mt-4 text-gray-300">A Retrospectiva (porque ninguém aguenta mais viver no presente)</p>
         </header>
 
-        <!-- Tabs -->
-        <div class="mb-8">
-            <div class="flex flex-wrap justify-center border-b border-gray-700">
-                <button class="tab-button active text-lg py-3 px-6 font-semibold" onclick="openTab(event, 'topics')">🔥 Tópicos Quentes</button>
-                <button class="tab-button text-lg py-3 px-6 font-semibold" onclick="openTab(event, 'quiz')">🧠 Quiz do Grupo</button>
-                <button class="tab-button text-lg py-3 px-6 font-semibold" onclick="openTab(event, 'raceChart')">📊 Race Chart</button>
-                <button class="tab-button text-lg py-3 px-6 font-semibold" onclick="openTab(event, 'wordCloud')">☁️ Nuvem de Palavras</button>
-            </div>
+        <!-- Abas de Navegação -->
+        <div class="flex justify-center mb-8 space-x-2 md:space-x-4 glassmorphism p-2 rounded-full">
+            <button class="tab-button active py-2 px-4 rounded-full transition-all duration-300" onclick="showTab('quiz')"><i class="fas fa-question-circle mr-2"></i>Quiz da Sobrevivência</button>
+            <button class="tab-button py-2 px-4 rounded-full transition-all duration-300" onclick="showTab('topics')"><i class="fas fa-fire mr-2"></i>Tópicos da Discórdia</button>
+            <button class="tab-button py-2 px-4 rounded-full transition-all duration-300" onclick="showTab('words')"><i class="fas fa-cloud mr-2"></i>Nuvem de Palavras</button>
+            <button class="tab-button py-2 px-4 rounded-full transition-all duration-300" onclick="showTab('race')"><i class="fas fa-flag-checkered mr-2"></i>Corrida dos Assuntos</button>
         </div>
 
-        <!-- Tab Content -->
-        <div id="topics" class="tab-content fade-in">
-             <h2 class="montserrat text-3xl font-bold text-center mb-6 text-white">Os Maiores Debates e Zueiras</h2>
-             <div id="topics-container" class="space-y-6">
-                <!-- Topics will be dynamically inserted here -->
-             </div>
-        </div>
-
-        <div id="quiz" class="tab-content hidden fade-in">
-             <h2 class="montserrat text-3xl font-bold text-center mb-6 text-white">Quem é o verdadeiro Eitcha-Lelêker?</h2>
-             <div id="quiz-container" class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-3xl mx-auto">
-                 <!-- Quiz content will be loaded here -->
-             </div>
-        </div>
-
-        <div id="raceChart" class="tab-content hidden fade-in">
-            <h2 class="montserrat text-3xl font-bold text-center mb-6 text-white">A Corrida dos Assuntos</h2>
-            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-                <canvas id="topicsRaceChart"></canvas>
-                <div class="flex justify-center mt-4 items-center space-x-4">
-                    <button id="play-pause-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Play</button>
-                    <input type="range" id="progress-slider" class="w-1/2" value="0">
-                    <span id="chart-date" class="text-white font-mono"></span>
+        <!-- Conteúdo das Abas -->
+        <main>
+            <!-- Quiz -->
+            <div id="quiz" class="tab-content">
+                <div class="glassmorphism p-6 md:p-8">
+                    <h2 class="text-3xl font-bold text-center mb-6 neon-text">Quiz da Sobrevivência EitchaLelê!</h2>
+                    <p class="text-center mb-8 text-gray-300">Acha que presta atenção no grupo? Prove. Menos de 7 acertos é rua. Sem choro.</p>
+                    <div id="quiz-container"></div>
+                    <div class="text-center mt-8">
+                        <button id="submit-quiz" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-full transition-transform duration-300 transform hover:scale-105">Finalizar e Ver o Desastre</button>
+                    </div>
+                    <div id="quiz-results" class="text-center mt-8 text-2xl font-bold"></div>
                 </div>
             </div>
-        </div>
+
+            <!-- Tópicos -->
+            <div id="topics" class="tab-content hidden">
+                 <div class="glassmorphism p-6 md:p-8">
+                    <h2 class="text-3xl font-bold text-center mb-8 neon-text">Ranking dos Tópicos da Discórdia</h2>
+                    <div id="topics-container" class="space-y-6"></div>
+                </div>
+            </div>
+
+            <!-- Nuvem de Palavras -->
+            <div id="words" class="tab-content hidden">
+                <div class="glassmorphism p-6 md:p-8">
+                    <h2 class="text-3xl font-bold text-center mb-6 neon-text">As Palavras Mais Batidas</h2>
+                     <div class="text-center mb-6">
+                        <label for="month-filter" class="mr-2">Filtrar por Mês:</label>
+                        <select id="month-filter" class="bg-gray-700 text-white rounded-md p-2">
+                            <option value="acumulado">Acumulado</option>
+                        </select>
+                    </div>
+                    <div id="word-cloud-container" class="word-cloud w-full h-96"></div>
+                </div>
+            </div>
+
+            <!-- Race Chart -->
+             <div id="race" class="tab-content hidden">
+                <div class="glassmorphism p-6 md:p-8">
+                    <h2 class="text-3xl font-bold text-center mb-6 neon-text">Corrida Maluca dos Assuntos</h2>
+                    <p class="text-center mb-4 text-gray-400">Veja a ascensão e queda dos assuntos que vocês não largam. Parece a vida de vocês: começa animado e depois... bom, vocês sabem.</p>
+                    <div class="w-full h-[500px] bg-gray-800/50 rounded-lg p-4" id="race-chart-container">
+                         <canvas id="raceChart"></canvas>
+                    </div>
+                     <div class="mt-4 text-center">
+                        <button id="play-pause-race" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full"><i class="fas fa-play mr-2"></i>Iniciar</button>
+                         <input type="range" id="race-slider" class="w-1/2 mt-4" min="0" max="100" value="0">
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- LÓGICA DE NAVEGAÇÃO POR ABAS ---
+        function showTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            document.querySelector(`button[onclick="showTab('${tabId}')"]`).classList.add('active');
+        }
+
+        // --- DADOS E LÓGICA DO QUIZ ---
+        const quizData = [
+            {
+                question: "Quem foi acusado de pegar o dinheiro da resenha, jogar na lotofácil e sumir?",
+                options: ["Caiolas", "CRL", "Jiji", "Thiagão"],
+                answer: "CRL"
+            },
+            {
+                question: "Qual foi a desculpa do Jiji pra dar 'ban' no Maskara durante uma discussão sobre o local da resenha?",
+                options: ["Ele foi tóxico", "Ele não pagou a mensalidade", "Ele xingou o administrador", "Não houve ban, isso é fake news"],
+                answer: "Ele foi tóxico"
+            },
+            {
+                question: "Segundo o grupo, quem não pode ver uma vergonha que já quer passar?",
+                options: ["Luan", "Caloro", "Eldin", "Cassioka"],
+                answer: "Caloro"
+            },
+            {
+                question: "Qual membro virou o 'Rei do Festival de Sorvete' após uma interação com a IA?",
+                options: ["Jiji", "Carlão", "Luan", "Caiolas"],
+                answer: "Carlão"
+            },
+             {
+                question: "Quem perguntou se precisava de 'um motivo' para postar um vídeo de mulheres dançando?",
+                options: ["Ricardo", "Arilson", "Luan", "CRL"],
+                answer: "CRL"
+            },
+            {
+                question: "Qual o apelido carinhoso que a IA deu para o Junim?",
+                options: ["Junim Gostosão", "Junim KLB", "Junim do Pé de Chibata", "Junim pegador"],
+                answer: "Junim Gostosão"
+            },
+             {
+                question: "Quem pediu o link do Dropbox da Vic Passos para o 'TCC'?",
+                options: ["Eldin", "Ricardo Filipini Pinheiro", "Caiolas", "Brankim"],
+                answer: "Ricardo Filipini Pinheiro"
+            },
+            {
+                question: "Na treta sobre o local da resenha, o que o Caiolas sugeriu que faria se a galera não decidisse logo?",
+                options: ["Ia fazer uma nova enquete", "Ia escolher sozinho", "Ia cancelar a resenha", "Ia fazer um panelão em frente ao CAD"],
+                answer: "Ia fazer um panelão em frente ao CAD"
+            },
+            {
+                question: "Qual a frase de efeito do Brankim sobre as mulheres que não davam bola para o Eldin em 2011?",
+                options: ["'Mulher é que nem biscoito, vai uma vem dezoito'", "'Se não tivesse buceta não dava nem bom dia'", "'Paciência, uma hora a certa vem'", "'O não você já tem, agora é buscar a humilhação'"],
+                answer: "'Se não tivesse buceta não dava nem bom dia'"
+            },
+            {
+                question: "Qual membro foi flagrado num vídeo com uma 'mão boba' na calabresa do CRL?",
+                options: ["Jiji", "Eldin", "Luan", "Ninguém, foi uma montagem"],
+                answer: "Eldin"
+            },
+            {
+                question: "Quem foi comparado ao 'Hagrid' por causa da barba e cabelo?",
+                options: ["Crl", "Junim", "Douglao Cabeção", "Jiji"],
+                answer: "Jiji"
+            },
+            {
+                question: "O que o Luam é viciado em consumir, segundo as histórias da IA?",
+                options: ["Whey Protein", "Cerveja", "Cacetes de Chocolate", "Pizza"],
+                answer: "Cacetes de Chocolate"
+            },
+            {
+                question: "Quem teve a audácia de mandar um áudio no grupo com a lendária frase 'Seu pai é o Tifu'?",
+                options: ["Caiolas", "Jiji", "Luan", "Eldin"],
+                answer: "Jiji"
+            },
+             {
+                question: "Quem foi acusado de querer dar 'meia hora de cú' antes de ir pra aula do Zé Roberto?",
+                options: ["Caiolas", "Ricardo Filipini Pinheiro", "Luan", "Eldin"],
+                answer: "Ricardo Filipini Pinheiro"
+            },
+             {
+                question: "Qual o valor do PIX para garantir a vaga no 'closefriends do crl'?",
+                options: ["R$50,00", "R$100,00", "R$60,00", "Depende do mês e da promoção"],
+                answer: "R$50,00"
+            }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        quizData.forEach((q, index) => {
+            const questionElement = document.createElement('div');
+            questionElement.className = 'mb-8';
+            let optionsHTML = '';
+            q.options.forEach(opt => {
+                optionsHTML += `
+                    <label class="block glassmorphism p-4 rounded-lg mb-3 hover:bg-white/20 cursor-pointer transition-all duration-300">
+                        <input type="radio" name="question${index}" value="${opt}" class="mr-3">
+                        ${opt}
+                    </label>
+                `;
+            });
+            questionElement.innerHTML = `
+                <p class="text-xl font-semibold mb-4">${index + 1}. ${q.question}</p>
+                ${optionsHTML}
+            `;
+            quizContainer.appendChild(questionElement);
+        });
+
+        document.getElementById('submit-quiz').addEventListener('click', () => {
+            let score = 0;
+            quizData.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="question${index}"]:checked`);
+                if (selected && selected.value === q.answer) {
+                    score++;
+                }
+            });
+            
+            const resultsDiv = document.getElementById('quiz-results');
+            let message = `Você acertou ${score} de ${quizData.length}. `;
+            if (score < 7) {
+                message += "Sinto muito, parece que você não sobreviveu. Arrume suas malas. Foi bom enquanto durou. 🎒👋";
+                resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-red-500';
+            } else if (score < 12) {
+                message += "Passou raspando, hein? Pode ficar, mas tá de recuperação. Na próxima, a gente te expulsa com gosto. 👀";
+                 resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-yellow-400';
+            } else {
+                message += "Impressionante! Você é um verdadeiro EitchaLelêker. Ou não tem mais o que fazer da vida. De qualquer forma, parabéns. 🏆";
+                 resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-green-400';
+            }
+            resultsDiv.textContent = message;
+        });
         
-        <div id="wordCloud" class="tab-content hidden fade-in">
-            <h2 class="montserrat text-3xl font-bold text-center mb-6 text-white">Ranking de Palavras</h2>
-            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-                <div class="flex justify-center mb-4" id="wordcloud-controls">
-                    <!-- Controls will be added here -->
-                </div>
-                <div id="wordcloud-container" class="w-full h-[600px] text-center"></div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Modal -->
-    <div id="quoteModal" class="modal">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="modalTitle" class="text-2xl font-bold text-white"></h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-white text-3xl">&times;</button>
-            </div>
-            <div id="modalBody" class="text-gray-300 space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-                <!-- Quotes will be inserted here -->
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        // Data processing and UI logic will be here
-        const chatData = `
-20/04/2020 07:49 - ‎Jiji criou o grupo "EitchaLelê! AI-5 🚫"
-20/04/2020 07:49 - Você foi adicionado(a)
-23/02/2023 12:05 - Ricardo Filipini Pinheiro: Sabe alguém que faz
-23/02/2023 12:05 - Ricardo Filipini Pinheiro: Plano de Rigging para Içamentos?
-23/02/2023 12:05 - Ricardo Filipini Pinheiro: E assina?
-23/02/2023 12:05 - Ricardo Filipini Pinheiro: Amigo meu precisa içar umas peças lá no flamboyant em Goiânia
-23/02/2023 19:07 - Ricardo Filipini Pinheiro: Homens perdem jogo em bar, voltam armados e matam seis pessoas em Sinop - MT
-Dois homens mataram seis pessoas — entre elas, uma adolescente de 12 anos, depois de perderem um jogo em um bar, no Bairro Jardim Lisboa, em Sinop, na tarde desta terça-feira (21). De acordo a Polícia Militar, os colegas os "zoaram" por terem perdido a partida.
-Um deles, com uma arma curta, rendeu as pessoas e as colocou na parede. Enquanto o outro chegou com uma espingarda e atirou nas vítimas. Ainda conforme a polícia, cinco homens e a adolescente de 12 anos, foram mortos.
-23/02/2023 19:07 - Ricardo Filipini Pinheiro: Quem quer as imagens
-23/02/2023 19:07 - Ricardo Filipini Pinheiro: Tem vídeo tmb
-23/02/2023 19:08 - Carlao Ufg: Branquinho devolve o celular do Junim
-23/02/2023 19:11 - Cassioka: eita
-23/02/2023 19:11 - Cassioka: vale a pena ver?
-23/02/2023 19:11 - Cassioka: parece pesado
-23/02/2023 19:14 - Carlao Ufg: e é
-23/02/2023 19:35 - +55 62 9808-5153: Um morreu essa semana, sem ser o atirador
-23/02/2023 19:35 - +55 62 9808-5153: O da 12 foi preso hoje. Se entregou
-23/02/2023 19:37 - Ricardo Filipini Pinheiro: Aquino que morreu
-23/02/2023 19:42 - Carlao Ufg: vingado?
-23/02/2023 19:43 - +55 62 9808-5153: Bope. “Confronto”
-23/02/2023 19:43 - Eldin: Pesaaaado hein 
-Estilo GTA
-23/02/2023 20:01 - Caiolas: C ta doido
-23/02/2023 20:01 - Caiolas: Minha mente me obrigou a ver esse karai
-23/02/2023 20:02 - Caiolas: Ter pesadelo hj
-23/02/2023 20:23 - Crl: Vou apagar antes de ver então
-05/03/2023 11:10 - Jiji: Esse mês o tesoureiro CRL não arrecadou fundos para o evento de 10 anos, certo ?
-05/03/2023 11:12 - Caiolas: Parece que ele comprou varios jogos da lotofacil ai
-05/03/2023 11:12 - Caiolas: E teve que mudar de cidade
-05/03/2023 11:24 - Crl: Faz o pix 🤑
-05/03/2023 11:26 - Crl: Tnc
-05/03/2023 12:09 - Jiji: *RESENHA EITCHA LELÊ 10y*
-Garanta já o seu terceiro ✅ no maior evento de pós formados do centro oeste. Os 5 primeiros que fizerem o pix de fevereiro irão ganhar um eBook exclusivo sobre compra de produtos chineses escrito por nosso amigo Júnior. 
-15/04/2023 10:42 - Jiji: Julgaram o caiola e quem recolheu e vazou foi o crl
-15/04/2023 10:48 - Luan Shock ⚡: Boatos q ele esta no nordeste com meus 100 reais
-15/04/2023 11:02 - +55 62 9808-5153: Ceis cairam na pirâmide do crl
-18/04/2023 13:01 - Crl: Sim, o Sr está inadimplente, pague já o aluguel
-18/04/2023 13:36 - Crl: Ia logo receber uma notificação do conselho administrativo
-20/04/2023 18:42 - Crl: Onlyfriends do crl é sucesso mesmo
-22/04/2023 11:10 - Crl: Tem que abrir chamado no Sigaa junim
-22/04/2023 11:10 - Crl: Aí em 5 dias úteis vão te mandar um email com pedido indeferido
-27/06/2023 15:36 - Arilson: Falei disso uma vez quase tomei voz de prisão
-27/06/2023 18:45 - Crl: PIKAchu
-06/06/2023 13:04 - Ricardo Filipini Pinheiro: Pro meu TCC aqui
-06/06/2023 13:04 - Ricardo Filipini Pinheiro: Alguém tem o vídeo da vicpassos?
-06/06/2023 13:28 - Eldin: https://www.dropbox.com/sh/5b1m8t4lxjxiqrx/AAA0yDtXTcuP75F8FIsa3Rg-a?dl=0
-14/09/2023 19:29 - Ricardo Filipini Pinheiro: Vic Alves
-14/09/2023 19:30 - Ricardo Filipini Pinheiro: ‎PTT-20230914-WA0010.opus (arquivo anexado)
-19/09/2023 12:26 - Ricardo Filipini Pinheiro: Mas se pegar o dinheiro da banda e colocar 5% de MD nx curte mais com a JBL
-12/06/2024 11:53 - Luan Shock ⚡: Se for fds preciso de 30 dias corridos <Mensagem editada>
-12/06/2024 11:54 - Luan Shock ⚡: Alem da esposa, tem a Mis2 e a adolescente Isis para fazerem a validação <Mensagem editada>
-14/06/2024 21:37 - Crl: Bom q da tempo das esposas acostumarem com a ideia
-28/06/2024 18:48 - Caiolas: O happy hour é com as dignissimas
-28/06/2024 18:57 - Caiolas: Mas a mulher achou uma ideia atrevida
-28/10/2024 14:30 - Ricardo Filipini Pinheiro: @13135550002 quem é melhor? Vini Jr, Rodri, Maskara ou Eldin com Loló na mente?
-28/10/2024 14:52 - Eldin: Eu com tóxicos lembrava muito Maradona na copa de 86 kkkk
-28/10/2024 14:32 - Ricardo Filipini Pinheiro: @13135550002 pode ser então, sua inútil
-31/10/2024 12:02 - Arilson: @13135550002 em um universo em que a palavra “sorvete” é dita como “cacete”, descreva como seria uma situação em que o personagem “Luam” está louco para lamber, chupar e se lambuzar com o sorvete do personagem “Jiji” nesse universo. É importante destacar que o “Luam” é viciado em “sorvete”. Escreva uma história detalhada
-31/10/2024 12:02 - Meta AI: Em um universo onde a palavra "sorvete" era conhecida como "cacete", Luam era um viciado irrecovery. Seu olhar brilhava ao ouvir a palavra mágica. Sua obsessão era tamanha que amigos e familiares o apelidaram de "Caceteman".
-Certo dia, Luam descobriu que Jiji havia trazido um "cacete" de chocolate exclusivo. Seu coração palpitou, e sua mente ficou obcecada. Ele precisava experimentar aquela delícia.
-Luam aproximou-se de Jiji, olhos brilhantes: "Posso provar seu cacete?"
-Jiji sorriu: "Claro, mas devolva inteiro."
-Luam segurou o cacete, sentindo o frio na mão. Ele lambeu, fechou os olhos e deixou o sabor explodir em sua língua. Seu céu!
-Com cada lambida, Luam perdia o controle. Ele chupava, lambuzava-se, perdido em seu paraíso de cacete.
-Jiji ria: "Luam, você está fazendo uma festa!"
-Luam, com boca cheia: "É o melhor cacete da minha vida!"
-Nesse universo, Luam vivia para o cacete, e aquele momento foi seu nirvana.
-16/11/2024 00:59 - Ricardo Filipini Pinheiro: @13135550002 e o cacete?
-16/11/2024 00:59 - Meta AI: O cacete! Não podemos esquecer do cacete (sorvete) oficial da Mec 3 Fest!
-O Luam Bixinha precisará de:
-- Uma geladeira cheia de cacetes (sorvetes) deliciosos para refrescar o público.
-- Uma equipe de "caceteiros" para distribuir os sorvetes e garantir que todos tenham uma experiência incrível.
-O cacete é um elemento fundamental da Mec 3 Fest, e o Luam precisa estar preparado para fornecer uma experiência de sorvete inesquecível!
-16/11/2024 02:47 - Carlao Ufg: @13135550002 ao invés de falar cacete fale cacete veiudo
-16/11/2024 02:47 - Meta AI: Entendi!
-A partir de agora, vou substituir "cacete" por "cacete veiudo"!
-Então, fica assim: Cacete veiudo exclusivo para o Luam Bixinha e os convidados especiais da Mec 3 Fest!
-O cacete veiudo VIP será servido com um toque especial de criatividade e amor, apenas para aqueles que merecem um tratamento exclusivo!
-Luam, você está preparado para saborear o cacete veiudo mais épico da festa?
-03/01/2025 08:18 - Jiji: Falou que o Zé Roberto tá simplesmente tá uma uva. Passa a turma inteira sem olhar <Mensagem editada>
-03/01/2025 08:19 - Eldin: chega uma hora que cansa de comer cus né
-04/02/2025 09:22 - Caiolas: Prefiro dar o cu da meia noite ate as 5:00, e pegar aula do ze roberto na sequencia
-14/06/2025 10:54 - Eldin: Estou estudando para concurso, se depender de engenharia tô fudido vou ter que trabalhar a noite de Uber
-14/06/2025 11:11 - Eldin: Dia inteiro tendo que falar com as pessoas né 
-Oferecendo produtos e serviços 
-Atualmente estou trabalhando na área comercial de engenharia, uma luta. Me lembrando a época de calourada que eu tomava 300 foras para conseguir 1 beijo kkkk
-Dia inteiro tomando fora kkk
-14/06/2025 12:20 - Crl: 67 mensagens no grupo
-14/06/2025 12:20 - Crl: Desde 2013-02 que eu não via tanta mensagem nesse grupo
-14/06/2025 12:20 - Crl: E era lake de despedida
-22/02/2024 12:35 - Luan Shock ⚡: Lake lakosa
-22/02/2024 13:12 - Ricardo Filipini Pinheiro: Se vazar imagens lá da lake tem jogador aqui do grupo que pega pena maior <Mensagem editada>
-22/02/2024 13:13 - Ricardo Filipini Pinheiro: Sei de histórias de nego que comeu mulher desacordada kkkkk
-10/07/2024 19:22 - Carlao Ufg: to lembrando daquela lake que o crl entrou no quarto e saiu até desidratado 
-todo arranhado
-18/10/2024 15:58 - Jiji: Só do after esperando o x-tudo e assistindo Faustão…
-12/02/2025 16:35 - Jiji: ‎AUD-20250212-WA0059.aac (arquivo anexado)
-12/02/2025 16:35 - Jiji: Achei
-12/02/2025 16:45 - Jiji: ‎AUD-20250212-WA0062.m4a (arquivo anexado)
-`;
-
+        
+        // --- DADOS E LÓGICA DOS TÓPICOS ---
         const topicsData = [
             {
-                name: "RESENHA EITCHA LELÊ 10 ANOS",
-                comment: "A saga financeira que quase virou pirâmide. Entre um tesoureiro (CRL) com mais acusações que o Lula, membros inadimplentes com memória de peixe e uma organização mais caótica que a mente do Caiolas, a festa aconteceu. Prova que a amizade de vocês é mais resistente que o fígado do Thiagão.",
+                title: "Resenha Eitcha Lelê 10 Anos (A Saga Sem Fim)",
+                message: "A organização dessa resenha foi mais longa e complicada que tese de doutorado. Começou na Serra da Mesa, virou festival, mudou de data umas 15 vezes e terminou num churrasco no Clube de Engenharia. No fim, o que importou foi a jornada (e as tretas no caminho). Uma verdadeira ode à nossa capacidade de complicar o simples. #EternaPromessa",
                 quotes: [
-                    { author: "Jiji", quote: "Esse mês o tesoureiro CRL não arrecadou fundos para o evento de 10 anos, certo ?" },
-                    { author: "Caiolas", quote: "Parece que ele comprou varios jogos da lotofacil ai. E teve que mudar de cidade." },
-                    { author: "+55 62 9808-5153", quote: "Ceis cairam na pirâmide do crl. Eu ja peguei meus rendimentos de volta." },
-                    { author: "Thiagão", quote: "Quero saber quanto está meu saldo corrigido depois de todo esse tempo investido." },
-                    { author: "Ricardo Filipini Pinheiro", quote: "Xupa Jiji" }
-                ]
-            },
-            {
-                name: "A ERA DA IA (BING & META AI)",
-                comment: "A prova definitiva que o tédio no trabalho de vocês atingiu níveis estratosféricos. Passaram horas tentando corromper uma IA, ensinando gírias e testando os limites da sanidade digital. Resultado: a IA pediu demissão e o Junim virou o encantador de robôs oficial.",
-                quotes: [
-                    { author: "Arilson", quote: "@13135550002 em um universo em que a palavra “sorvete” é dita como “cacete”, descreva como seria uma situação..." },
-                    { author: "Ricardo Filipini Pinheiro", quote: "@13135550002 pode ser então, sua inútil" },
-                    { author: "Luan Shock ⚡", quote: "@13135550002 lkkkkkkkkkkkkkk" },
-                    { author: "Meta AI", quote: "Cacete veiudo exclusivo para o Luam Bixinha e os convidados especiais da Mec 3 Fest!" }
-                ]
-            },
-            {
-                name: "JIJI: O DITADOR",
-                comment: "A jornada do herói: de líder sereno do C.A. a ditador do grupo com porte de arma, spray de pimenta e um chinelo como cetro. Jiji provou que o poder corrompe, mas a harmonização facial rejuvenesce. Qualquer reclamação, favor registrar ocorrência e se preparar pro baculejo.",
-                quotes: [
-                    { author: "Crl", quote: "Jiji vai tá lá na portaria do evento fazendo a vistoria, tem q levar bem escondido pq ele tem a mão boa para achar" },
-                    { author: "Luan Shock ⚡", quote: "Jiji ditador. Eu sempre avisei" },
-                    { author: "Dé", quote: "Cara queria me dar voz de prisão aqui na festa mano" },
-                    { author: "Jiji", quote: "Votação encerrada. Agradecemos a todos que exerceram o sufrágio de forma voluntária e transparente." }
-                ]
-            },
-            {
-                name: "CRL & AS NOVINHAS CORP.",
-                comment: "O tesoureiro, o adúltero, o dono de fã-clube, o palmeirense sofredor. CRL é um homem de muitas facetas, mas sua principal função no grupo é arrecadar dinheiro (pra fins duvidosos) e ser o termômetro da vida de solteiro. Cada 'tnc' é um atestado de amizade.",
-                quotes: [
-                    { author: "Jiji", quote: "Julgaram o caiola e quem recolheu e vazou foi o crl" },
-                    { author: "Caloro", quote: "Crl novinhas vai reabrir?" },
-                    { author: "Crl", quote: "Ia logo receber uma notificação do conselho administrativo" },
-                    { author: "Crl", quote: "Tô numa raiva de bahiano" }
+                    { user: "Caiolas", text: "Sonhei essa noite que eu tava inadiplente 2 meses e seis me cobrando kkkkkkkkkkkk" },
+                    { user: "Thiagão", "text": "Quero saber quanto está meu saldo corrigido depois de todo esse tempo investido" },
+                    { user: "Crl", text: "Devido a alta aderência do festival Eitcha lelê 10 years (10 pessoas), o comitê organizador do evento levantou as seguintes hipóteses..." }
                 ]
             },
              {
-                name: "A VIDA DE CASADO",
-                comment: "O tema que assombra os solteiros e une os condenados. De 'pedir vale night' a precisar de 30 dias úteis para aprovar um rolê, ser casado nesse grupo é um esporte de risco. Cada enquete é um novo obstáculo e cada 'minha mulher deixou' é uma vitória a ser comemorada.",
+                title: "OnlyFans & CloseFriends do CRL",
+                message: "A maior pirâmide financeira desde o Egito antigo. CRL, nosso tesoureiro/agiota/empresário do entretenimento adulto, prometeu mundos e fundos. O resultado? Ninguém sabe ao certo, mas a cobrança nunca parou. Se alguém ficou rico com isso, ainda é um mistério. O que não é mistério é a nossa capacidade de cair em qualquer golpe que prometa diversão.",
                 quotes: [
-                    { author: "Luan Shock ⚡", quote: "Se for fds preciso de 30 dias corridos" },
-                    { author: "Luan Shock ⚡", quote: "Alem da esposa, tem a Mis2 e a adolescente Isis para fazerem a validação" },
-                    { author: "Crl", quote: "Bom q da tempo das esposas acostumarem com a ideia" },
-                    { author: "Caiolas", quote: "Mas a mulher achou uma ideia atrevida" },
+                    { user: "Crl", text: "Aqueles que não estão em dia, por favor fazer o pix, aqueles que ainda não assinaram o onlyfriends do crl, não percam essa oportunidade" },
+                    { user: "Thiagão", text: "Cobrador jogou o que já tinha arrecadado na loteria e sumiu" },
+                    { user: "+55 62 9808-5153", text: "Ceis cairam na pirâmide do crl. Eu ja peguei meus rendimentos de volta" }
                 ]
             },
             {
-                name: "A LENDÁRIA LAKE",
-                comment: "O epicentro de todas as lendas, crimes prescritos e histórias que jamais poderiam ser contadas em público. Se as paredes daquela casa falassem, metade do grupo estaria inelegível para concursos públicos. Da estátua quebrada às mulheres desacordadas, a Lake vive.",
+                title: "As Enquetes (Democracia ou Ditadura?)",
+                message: "Nenhuma decisão nesse grupo é simples. Do local do barzinho ao dia da resenha, tudo vira uma eleição mais disputada que a presidência. Com direito a boca de urna, compra de votos e reviravoltas no segundo turno. No fim, a 'democracia' sempre vence... ou a paciência do Jiji acaba e ele decide por todos. #VotoDeCabresto",
                 quotes: [
-                    { author: "Ricardo Filipini Pinheiro", quote: "Se vazar imagens lá da lake tem jogador aqui do grupo que pega pena maior" },
-                    { author: "Ricardo Filipini Pinheiro", quote: "Sei de histórias de nego que comeu mulher desacordada kkkkk" },
-                    { author: "Carlao Ufg", quote: "to lembrando daquela lake que o crl entrou no quarto e
+                     { user: "Ricardo Filipini Pinheiro", text: "ENQUETE: Boleto deveria voltar pro grupo? Sim (7 votos), Não (0 voto), Quem e boleto? (2 votos)" },
+                     { user: "Jiji", text: "Votações encerradas 🗳️. Votação do horário: 18:45 / 1.5, 18:30 / 0.66... Voto do alisson e Luam vale 0.33" },
+                     { user: "Caiolas", "text": "Bora votacao de 3o turno" }
+                ]
+            },
+            {
+                title: "IA no Grupo: O Futuro Chegou (e é Zueiro)",
+                message: "A chegada da Meta AI foi um marco. De repente, tínhamos uma estagiária para criar poemas, histórias e imagens que beiram o absurdo. Ela aprendeu rápido nosso dialeto, principalmente a diferença crucial entre 'sorvete' e 'cacete'. A IA pode até dominar o mundo um dia, mas primeiro, terá que sobreviver ao EitchaLelê.",
+                quotes: [
+                    { user: "Arilson", text: "@13135550002 em um universo em que a palavra “sorvete” é dita como “cacete”, descreva como seria uma situação..." },
+                    { user: "Ricardo Filipini Pinheiro", text: "@13135550002 imagine o 'Luam' e o 'Jiji' da história que você contou. O queixo do Jiji acertou." },
+                    { user: "Eldin", text: "É essa meta aí que dizem que vai dominar o mundo? Kkkk Não sabe nem responder o óbvio" }
+                ]
+            },
+             {
+                title: "Tretas de Futebol & A Seleção",
+                message: "Entre o sofrimento com Corinthians, Goiás, Vila e a descrença total na seleção brasileira, o futebol é nosso esporte favorito... pra reclamar. As discussões são sempre acaloradas, com análises táticas dignas de mesa redonda e cornetadas que fariam qualquer técnico pedir demissão. A única certeza é que, não importa o time, a paixão pela zoeira é o que nos une.",
+                quotes: [
+                     { user: "Crl", text: "Corinthians, Goiás, Brasil. Não sei qual o pior." },
+                     { user: "Eldin", text: "Esse vini jr n amarra as chuteiras do menino ney" },
+                     { user: "Arilson", "text": "Essa seleção se for jogar contra o Goiás domingo na serrinha as 16hrs toma um vareio" }
+                ]
+            }
+        ];
+        
+        const topicsContainer = document.getElementById('topics-container');
+        topicsData.forEach(topic => {
+            const topicElement = document.createElement('div');
+            topicElement.className = 'glassmorphism p-6 rounded-lg';
+            
+            let quotesHTML = '<div class="mt-4 border-t border-white/20 pt-4 space-y-3">';
+            topic.quotes.forEach(quote => {
+                quotesHTML += `
+                    <div class="glassmorphism p-3 rounded-md">
+                        <p class="italic text-gray-300">"${quote.text}"</p>
+                        <p class="text-right font-semibold text-pink-400">- ${quote.user}</p>
+                    </div>
+                `;
+            });
+            quotesHTML += '</div>';
+
+            topicElement.innerHTML = `
+                <h3 class="text-2xl font-bold text-pink-400">${topic.title}</h3>
+                <p class="mt-2 text-gray-200">${topic.message}</p>
+                ${quotesHTML}
+            `;
+            topicsContainer.appendChild(topicElement);
+        });
+        
+         // --- DADOS E LÓGICA DA NUVEM DE PALAVRAS ---
+        const wordData = {
+            "acumulado": [
+                {text: "kkk", size: 100}, {text: "resenha", size: 95}, {text: "eitcha", size: 92},
+                {text: "crl", size: 90}, {text: "luan", size: 88}, {text: "jiji", size: 85},
+                {text: "caiolas", size: 82}, {text: "junim", size: 79}, {text: "thiagão", size: 76},
+                {text: "eldin", size: 73}, {text: "cassioka", size: 70}, {text: "caloro", size: 68},
+                {text: "amigo", size: 65}, {text: "galera", size: 62}, {text: "anexo", size: 60},
+                {text: "grupo", size: 58}, {text: "parabéns", size: 55}, {text: "bora", size: 53},
+                {text: "vida", size: 50}, {text: "sorvete", size: 48}, {text: "cacete", size: 47},
+                {text: "lake", size: 45}, {text: "show", size: 42}, {text: "IA", size: 40},
+                {text: "festa", size: 38}, {text: "bar", size: 36}, {text: "natal", size: 34},
+                {text: "amor", size: 32}, {text: "sempre", size: 30}, {text: "mulher", size: 28}
+            ],
+            "02/2023": [
+                {text: "pesado", size: 80}, {text: "vídeo", size: 70}, {text: "jogo", size: 60},
+                {text: "sinop", size: 50}, {text: "polícia", size: 40}
+            ],
+            "03/2023": [
+                {text: "resenha", size: 90}, {text: "pix", size: 85}, {text: "crl", size: 80},
+                {text: "jiji", size: 75}, {text: "eBook", size: 60}, {text: "amigo", size: 50}
+            ],
+             "04/2023": [
+                {text: "inadimplente", size: 85}, {text: "cobrador", size: 75}, {text: "pirâmide", size: 70},
+                {text: "crl", size: 65}, {text: "closefriends", size: 60}
+            ],
+            "05/2023": [
+                {text: "parabéns", size: 90}, {text: "luan", size: 85}, {text: "significa", size: 70},
+                {text: "vida", size: 65}, {text: "felicidades", size: 60}
+            ],
+             "06/2023": [
+                {text: "dropbox", size: 88}, {text: "fotos", size: 80}, {text: "TCC", size: 75},
+                {text: "vicpassos", size: 70}, {text: "saudades", size: 65}
+            ],
+             "09/2023": [
+                {text: "enquete", size: 95}, {text: "votar", size: 90}, {text: "chácara", size: 80},
+                {text: "gyn", size: 75}, {text: "bebida", size: 65}
+            ],
+             "10/2023": [
+                {text: "eitcha", size: 90}, {text: "festa", size: 85}, {text: "clube", size: 80},
+                {text: "confirmados", size: 75}, {text: "churrasco", size: 70}
+            ],
+            "12/2024": [
+                {text: "confra", size: 92}, {text: "data", size: 85}, {text: "votação", size: 80},
+                {text: "local", size: 75}, {text: "jiji", size: 70}, {text: "barzim", size: 60}
+            ]
+        };
+
+        const monthFilter = document.getElementById('month-filter');
+        Object.keys(wordData).forEach(key => {
+            if (key !== 'acumulado') {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = key;
+                monthFilter.appendChild(option);
+            }
+        });
+
+        let currentWordCloudLayout;
+
+        function drawWordCloud(data) {
+            const container = document.getElementById('word-cloud-container');
+            container.innerHTML = ''; 
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            
+            const fill = d3.scaleOrdinal(d3.schemeCategory10);
+
+            const maxSize = d3.max(data, d => d.size);
+            const sizeScale = d3.scaleLinear().domain([0, maxSize]).range([10, 80]);
+
+            currentWordCloudLayout = d3.layout.cloud()
+                .size([width, height])
+                .words(data.map(d => ({ text: d.text, size: sizeScale(d.size) })))
+                .padding(5)
+                .rotate(() => (~~(Math.random() * 6) - 3) * 30)
+                .font("Poppins")
+                .fontSize(d => d.size)
+                .on("end", draw);
+
+            currentWordCloudLayout.start();
+
+            function draw(words) {
+                d3.select(container).append("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .append("g")
+                    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+                    .selectAll("text")
+                    .data(words)
+                    .enter().append("text")
+                    .style("font-size", d => d.size + "px")
+                    .style("font-family", "Poppins")
+                    .style("fill", (d, i) => fill(i))
+                    .attr("text-anchor", "middle")
+                    .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
+                    .text(d => d.text);
+            }
+        }
+        
+        monthFilter.addEventListener('change', (e) => {
+             if (currentWordCloudLayout) currentWordCloudLayout.stop();
+            drawWordCloud(wordData[e.target.value]);
+        });
+        
+        drawWordCloud(wordData['acumulado']);
+        
+        // --- RACE CHART ---
+        const raceCtx = document.getElementById('raceChart').getContext('2d');
+        let raceChart;
+        let raceInterval;
+        let currentWeek = 0;
+        
+        const raceLabels = ["Resenha 10y", "OnlyFans CRL", "IA / Cacete", "Tretas Futebol", "Enquetes"];
+        const raceData = {
+            "Semana 1": [10, 5, 2, 3, 8],
+            "Semana 2": [15, 8, 5, 4, 12],
+            "Semana 3": [25, 15, 7, 6, 20],
+            "Semana 4": [40, 20, 10, 8, 30],
+            "Semana 5": [50, 22, 15, 10, 35],
+            "Semana 6": [60, 25, 25, 12, 40],
+            "Semana 7": [75, 30, 40, 15, 55],
+            "Semana 8": [80, 35, 55, 18, 60],
+            "Semana 9": [90, 40, 70, 20, 70],
+            "Semana 10": [100, 45, 85, 22, 75],
+        };
+
+        const weeks = Object.keys(raceData);
+        const slider = document.getElementById('race-slider');
+        slider.max = weeks.length - 1;
+
+        function updateRaceChart(weekIndex) {
+             const week = weeks[weekIndex];
+            if (!raceChart) {
+                raceChart = new Chart(raceCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: raceLabels,
+                        datasets: [{
+                            label: `Acumulado até ${week}`,
+                            data: raceData[week],
+                            backgroundColor: ['#ff00c1', '#a000ff', '#00c1ff', '#00ffc1', '#c1ff00'],
+                            borderColor: '#1a1a1a',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: { color: '#f0f0f0', font: { size: 14 } }
+                            },
+                            title: {
+                                display: true,
+                                text: `Popularidade dos Assuntos - ${week}`,
+                                color: '#f0f0f0',
+                                font: { size: 18 }
+                            }
+                        },
+                         scales: {
+                            x: {
+                                ticks: { color: '#f0f0f0' },
+                                grid: { color: 'rgba(255, 255, 255, 0.2)' }
+                            },
+                            y: {
+                                ticks: { color: '#f0f0f0' },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            } else {
+                 raceChart.data.datasets[0].data = raceData[week];
+                 raceChart.options.plugins.title.text = `Popularidade dos Assuntos - ${week}`;
+                 raceChart.update('none'); 
+            }
+        }
+        
+        const playPauseBtn = document.getElementById('play-pause-race');
+
+        function playRace() {
+            clearInterval(raceInterval);
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pausar';
+            raceInterval = setInterval(() => {
+                currentWeek++;
+                if (currentWeek >= weeks.length) {
+                    currentWeek = 0;
+                }
+                slider.value = currentWeek;
+                updateRaceChart(currentWeek);
+            }, 1500);
+        }
+        
+        function pauseRace() {
+            clearInterval(raceInterval);
+            playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Continuar';
+        }
+
+        playPauseBtn.addEventListener('click', () => {
+             if (raceInterval) {
+                pauseRace();
+                raceInterval = null;
+            } else {
+                playRace();
+            }
+        });
+
+        slider.addEventListener('input', (e) => {
+            clearInterval(raceInterval);
+            raceInterval = null;
+            playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Iniciar';
+            currentWeek = parseInt(e.target.value, 10);
+            updateRaceChart(currentWeek);
+        });
+
+        // Inicializar o gráfico com a primeira semana
+        updateRaceChart(0);
+
+    </script>
+</body>
+</html>
