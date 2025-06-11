@@ -105,6 +105,13 @@
         .accordion-content.active {
             padding: 1rem 1.5rem;
         }
+        .countdown-timer {
+            background: #2a2a2a;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #ff00c1;
+            box-shadow: 0 0 10px #ff00c1;
+        }
     </style>
 </head>
 <body class="p-2 sm:p-4 md:p-8">
@@ -157,8 +164,12 @@
                         <button id="submit-quiz-burroes" class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-8 rounded-full transition-transform duration-300 transform hover:scale-105">Entregar a Prova de Recuperação</button>
                     </div>
                     <div id="quiz-results-burroes" class="text-center mt-8 text-2xl font-bold"></div>
-                     <div class="text-center mt-4">
-                        <button onclick="toggleGabarito('burroes')" class="text-pink-400 hover:underline">Ver Gabarito</button>
+                     <div id="gabarito-lock-container" class="text-center mt-4">
+                        <button id="show-gabarito-burroes-btn" class="text-pink-400 hover:underline opacity-50 cursor-not-allowed" disabled>Ver Gabarito</button>
+                        <div id="countdown-container" class="mt-4">
+                            <p>Gabarito libera em:</p>
+                            <p id="countdown-timer" class="text-2xl font-bold neon-text"></p>
+                        </div>
                     </div>
                      <div id="gabarito-container-burroes" class="hidden mt-10">
                         <h3 class="text-2xl font-bold text-center mb-6 neon-text">Gabarito Comentado (Nível Fácil)</h3>
@@ -222,8 +233,12 @@
             }
             
             window.toggleGabarito = function(quizType) {
-                const gabaritoContainer = document.getElementById(`gabarito-container-${quizType}`);
-                gabaritoContainer.classList.toggle('hidden');
+                 const gabaritoContainer = document.getElementById(`gabarito-container-${quizType}`);
+                if (quizType === 'dificil') {
+                    gabaritoContainer.classList.toggle('hidden');
+                } else if (quizType === 'burroes' && !gabaritoContainer.classList.contains('locked')) {
+                    gabaritoContainer.classList.toggle('hidden');
+                }
             }
 
             // --- QUIZ DATA ---
@@ -248,7 +263,7 @@
             const quizDataBurroes = [
                 { question: "Qual membro é famoso por suas cobranças e planilhas financeiras da resenha?", options: ["Jiji", "CRL", "Caiolas", "Thiagão"], answer: "CRL", proof: "CRL (18/04/2023): Paguem a mensalidade seus putos."},
                 { question: "Qual o apelido do administrador que governa o grupo com mão de ferro?", options: ["Jiji Ditador", "Jiji Democrata", "Jiji Anarquista", "Jiji Monarca"], answer: "Jiji Ditador", proof: "Luan Shock ⚡ (03/12/2024): Viva ditadura jijiriana"},
-                { question: "Qual a principal crise existencial que assola os membros formados em engenharia?", options: ["Falta de festas", "Crise da Engenharia", "Falta de futebol", "Saudade da UFG"], answer: "Crise da Engenharia", proof: "Eldin (14/06/2024): To como bosta. Assinam como consultor técnico. Isso aí é que nem velha virgem"},
+                { question: "Qual a principal crise existencial discutida no grupo?", options: ["Falta de festas", "Crise da Engenharia", "Falta de futebol", "Saudade da UFG"], answer: "Crise da Engenharia", proof: "Eldin (14/06/2024): To como bosta. Assinam como consultor técnico. Isso aí é que nem velha virgem"},
                 { question: "Quem é o famoso 'Rei do Festival de Sorvete'?", options: ["Luan", "Caiolas", "CRL", "Carlão"], answer: "Carlão", proof: "Carlao Ufg (31/10/2024): @13135550002 quando se referir ao @556285148941 chame de “Rei do Festival de Sorvete Mec3”"},
                 { question: "A IA do grupo foi treinada para substituir a palavra 'sorvete' por qual outra palavra?", options: ["Doce", "Guloseima", "Cacete", "Alegria"], answer: "Cacete", proof: "Ricardo Filipini Pinheiro (04/11/2024): @13135550002 acho que você não entendeu mas daqui pra frente sempre chame 'sorvete' de 'cacete'"},
                 { question: "Quem criou o grupo EitchaLelê?", options: ["Caiolas", "Eldin", "Jiji", "CRL"], answer: "Jiji", proof: "Linha do tempo (20/04/2020): ‎Jiji criou o grupo 'EitchaLelê! AI-5 🚫'"},
@@ -257,7 +272,7 @@
                 { question: "Qual professor da UFG é frequentemente citado como um trauma coletivo?", options: ["Ademir", "Sigeo", "Demóstenes", "Zé Roberto"], answer: "Zé Roberto", proof: "Caiolas (04/02/2025): Prefiro dar o cu da meia noite ate as 5:00, e pegar aula do ze roberto na sequencia"},
                 { question: "Quem é o membro que mora em Rondônia e sempre confunde as cidades?", options: ["Thiagão", "Caloro", "Cassioka", "Dé"], answer: "Caloro", proof: "Caloro (31/08/2023): Jurava que era Jataí 😂😂"}
             ];
-
+            
             function renderQuiz(containerId, data, quizName) {
                 const container = document.getElementById(containerId);
                 container.innerHTML = '';
@@ -266,15 +281,9 @@
                     questionElement.className = 'mb-8';
                     let optionsHTML = '';
                     q.options.forEach(opt => {
-                        optionsHTML += `
-                            <label class="block glassmorphism p-4 rounded-lg mb-3 hover:bg-white/20 cursor-pointer transition-all duration-300">
-                                <input type="radio" name="${quizName}-q${index}" value="${opt}" class="mr-3 accent-pink-500">
-                                ${opt}
-                            </label>`;
+                        optionsHTML += `<label class="block glassmorphism p-4 rounded-lg mb-3 hover:bg-white/20 cursor-pointer transition-all duration-300"><input type="radio" name="${quizName}-q${index}" value="${opt}" class="mr-3 accent-pink-500">${opt}</label>`;
                     });
-                    questionElement.innerHTML = `
-                        <p class="text-xl font-semibold mb-4">${index + 1}. ${q.question}</p>
-                        ${optionsHTML}`;
+                    questionElement.innerHTML = `<p class="text-xl font-semibold mb-4">${index + 1}. ${q.question}</p>${optionsHTML}`;
                     container.appendChild(questionElement);
                 });
             }
@@ -285,10 +294,7 @@
                 data.forEach((q, index) => {
                     const item = document.createElement('div');
                     item.className = 'glassmorphism p-4 rounded-lg';
-                    item.innerHTML = `
-                        <p class="font-bold text-lg">${index + 1}. ${q.question}</p>
-                        <p class="text-green-400 mt-2"><strong>Resposta Correta:</strong> ${q.answer}</p>
-                        <p class="text-gray-400 mt-1 text-sm"><strong>Comprovação:</strong> <i>"${q.proof}"</i></p>`;
+                    item.innerHTML = `<p class="font-bold text-lg">${index + 1}. ${q.question}</p><p class="text-green-400 mt-2"><strong>Resposta Correta:</strong> ${q.answer}</p><p class="text-gray-400 mt-1 text-sm"><strong>Comprovação:</strong> <i>"${q.proof}"</i></p>`;
                     container.appendChild(item);
                 });
             }
@@ -311,7 +317,7 @@
                     resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-red-500';
                 } else {
                     message += "Impressionante! Você é um verdadeiro EitchaLelêker. Ou não tem mais o que fazer da vida. Parabéns. 🏆";
-                     resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-green-400';
+                    resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-green-400';
                 }
                 resultsDiv.textContent = message;
             });
@@ -329,10 +335,42 @@
                     resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-red-700';
                 } else {
                     message += "Ufa! Passou de ano. Pode ficar, mas que isso não se repita. Da próxima vez, nem a recuperação te salva.";
-                     resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-green-500';
+                    resultsDiv.className = 'text-center mt-8 text-2xl font-bold text-green-500';
                 }
                 resultsDiv.textContent = message;
             });
+
+            // --- Countdown Timer Logic ---
+            const gabaritoBtn = document.getElementById('show-gabarito-burroes-btn');
+            const countdownContainer = document.getElementById('countdown-container');
+            const gabaritoContainer = document.getElementById('gabarito-container-burroes');
+            
+            const now = new Date();
+            const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0); // Midnight of the *next* day
+            
+            let countdownInterval = setInterval(() => {
+                const currentTime = new Date().getTime();
+                const distance = midnight.getTime() - currentTime;
+                
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    countdownContainer.style.display = 'none';
+                    gabaritoBtn.disabled = false;
+                    gabaritoBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    gabaritoBtn.onclick = () => toggleGabarito('burroes');
+                    return;
+                }
+                
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.getElementById('countdown-timer').innerHTML = 
+                    hours.toString().padStart(2, '0') + "h " + 
+                    minutes.toString().padStart(2, '0') + "m " + 
+                    seconds.toString().padStart(2, '0') + "s ";
+            }, 1000);
+
 
             // --- TOPICS LOGIC ---
             const topicsData = [
@@ -391,39 +429,16 @@
             topicsData.forEach((topic, index) => {
                 const topicElement = document.createElement('div');
                 topicElement.className = 'glassmorphism rounded-lg overflow-hidden';
-                topicElement.innerHTML = `
-                    <h3 class="text-xl md:text-2xl font-bold text-pink-400 p-4 cursor-pointer flex justify-between items-center" onclick="toggleTopic(${index})">
-                        <span>${topic.title}</span>
-                        <i id="topic-icon-${index}" class="fas fa-chevron-down transition-transform duration-300"></i>
-                    </h3>
-                    <div id="topic-content-${index}" class="px-4 accordion-content"></div>
-                `;
+                topicElement.innerHTML = `<h3 class="text-xl md:text-2xl font-bold text-pink-400 p-4 cursor-pointer flex justify-between items-center" onclick="toggleTopic(${index})"><span>${topic.title}</span><i id="topic-icon-${index}" class="fas fa-chevron-down transition-transform duration-300"></i></h3><div id="topic-content-${index}" class="px-4 accordion-content"></div>`;
                 topicsList.appendChild(topicElement);
             });
 
             // --- WORD CLOUD LOGIC ---
-            const wordData = {
-                "2023-1": [ {text: "resenha", size: 95}, {text: "crl", size: 80}, {text: "pix", size: 75}, {text: "jiji", size: 72}, {text: "amigo", size: 68}, {text: "luan", size: 65}, {text: "caiolas", size: 60}, {text: "pesado", size: 55}, {text: "vídeo", size: 50}, {text: "saudades", size: 45}, {text: "fotos", size: 42}, {text: "tcc", size: 40}, {text: "dropbox", size: 38}, {text: "mulher", size: 35}, {text: "eldin", size: 32}, {text: "pau", size: 28}, {text: "bora", size: 25} ],
-                "2023-2": [ {text: "eitcha", size: 100}, {text: "festa", size: 90}, {text: "enquete", size: 85}, {text: "crl", size: 82}, {text: "junim", size: 80}, {text: "luan", size: 78}, {text: "jiji", size: 75}, {text: "churrasco", size: 65}, {text: "clube", size: 60}, {text: "votar", size: 58}, {text: "confra", size: 55}, {text: "data", size: 52}, {text: "futebol", size: 48}, {text: "vila", size: 45}, {text: "natal", size: 40}, {text: "carne", size: 35}, {text: "amigo", size: 30} ],
-                "2024-1": [ {text: "kkkkk", size: 110}, {text: "eitcha", size: 90}, {text: "amigo", size: 80}, {text: "caiolas", size: 75}, {text: "bar", size: 70}, {text: "luam", size: 68}, {text: "eldin", size: 65}, {text: "homens", size: 60}, {text: "crl", size: 58}, {text: "IA", size: 55}, {text: "figurinhas", size: 52}, {text: "Duna", size: 45}, {text: "cinema", size: 40}, {text: "saudades", size: 38}, {text: "lake", size: 35} ],
-                "2024-2": [ {text: "concurso", size: 120}, {text: "engenharia", size: 105}, {text: "jiji", size: 95}, {text: "IA", size: 92}, {text: "luam", size: 90}, {text: "trabalho", size: 80}, {text: "futebol", size: 78}, {text: "crl", size: 75}, {text: "cacete", size: 72}, {text: "sorvete", size: 71}, {text: "amigo", size: 70}, {text: "caiolas", size: 68}, {text: "votação", size: 65}, {text: "barzinho", size: 60}, {text: "eldin", size: 58}, {text: "neymar", size: 55}, {text: "enquete", size: 52}, {text: "ditadura", size: 45} ]
-            };
-            wordData["Acumulado"] = [ ...wordData["2023-1"], ...wordData["2023-2"], ...wordData["2024-1"], ...wordData["2024-2"] ].reduce((acc, word) => {
-                const existing = acc.find(w => w.text === word.text);
-                if (existing) existing.size += word.size;
-                else acc.push({ ...word });
-                return acc;
-            }, []);
-
+            const wordData = { "2023-1": [ {text: "resenha", size: 95}, {text: "crl", size: 80}, {text: "pix", size: 75}, {text: "jiji", size: 72}, {text: "amigo", size: 68}, {text: "luan", size: 65}, {text: "caiolas", size: 60}, {text: "pesado", size: 55}, {text: "vídeo", size: 50}, {text: "saudades", size: 45}, {text: "fotos", size: 42}, {text: "tcc", size: 40}, {text: "dropbox", size: 38}, {text: "mulher", size: 35}, {text: "eldin", size: 32}, {text: "pau", size: 28}, {text: "bora", size: 25} ], "2023-2": [ {text: "eitcha", size: 100}, {text: "festa", size: 90}, {text: "enquete", size: 85}, {text: "crl", size: 82}, {text: "junim", size: 80}, {text: "luan", size: 78}, {text: "jiji", size: 75}, {text: "churrasco", size: 65}, {text: "clube", size: 60}, {text: "votar", size: 58}, {text: "confra", size: 55}, {text: "data", size: 52}, {text: "futebol", size: 48}, {text: "vila", size: 45}, {text: "natal", size: 40}, {text: "carne", size: 35}, {text: "amigo", size: 30} ], "2024-1": [ {text: "kkkkk", size: 110}, {text: "eitcha", size: 90}, {text: "amigo", size: 80}, {text: "caiolas", size: 75}, {text: "bar", size: 70}, {text: "luam", size: 68}, {text: "eldin", size: 65}, {text: "homens", size: 60}, {text: "crl", size: 58}, {text: "IA", size: 55}, {text: "figurinhas", size: 52}, {text: "Duna", size: 45}, {text: "cinema", size: 40}, {text: "saudades", size: 38}, {text: "lake", size: 35} ], "2024-2": [ {text: "concurso", size: 120}, {text: "engenharia", size: 105}, {text: "jiji", size: 95}, {text: "IA", size: 92}, {text: "luam", size: 90}, {text: "trabalho", size: 80}, {text: "futebol", size: 78}, {text: "crl", size: 75}, {text: "cacete", size: 72}, {text: "sorvete", size: 71}, {text: "amigo", size: 70}, {text: "caiolas", size: 68}, {text: "votação", size: 65}, {text: "barzinho", size: 60}, {text: "eldin", size: 58}, {text: "neymar", size: 55}, {text: "enquete", size: 52}, {text: "ditadura", size: 45} ] };
+            wordData["Acumulado"] = [ ...wordData["2023-1"], ...wordData["2023-2"], ...wordData["2024-1"], ...wordData["2024-2"] ].reduce((acc, word) => { const existing = acc.find(w => w.text === word.text); if (existing) existing.size += word.size; else acc.push({ ...word }); return acc; }, []);
             const periodFilter = document.getElementById('period-filter');
             const periods = { "Acumulado": "Acumulado", "2023-1": "2023 - 1º Semestre", "2023-2": "2023 - 2º Semestre", "2024-1": "2024 - 1º Semestre", "2024-2": "2024 - 2º Semestre" };
-            Object.keys(periods).forEach(key => {
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = periods[key];
-                periodFilter.appendChild(option);
-            });
-
+            Object.keys(periods).forEach(key => { const option = document.createElement('option'); option.value = key; option.textContent = periods[key]; periodFilter.appendChild(option); });
             let currentWordCloudLayout;
             function drawWordCloud(data) {
                 const container = document.getElementById('word-cloud-container');
@@ -433,95 +448,31 @@
                 const fill = d3.scaleOrdinal(["#ff00c1", "#a000ff", "#00c1ff", "#00ffc1", "#c1ff00", "#ffc100", "#ff7c00"]);
                 const maxSize = d3.max(data, d => d.size);
                 const sizeScale = d3.scaleSqrt().domain([0, maxSize]).range([12, 120]);
-
                 currentWordCloudLayout = d3.layout.cloud().size([width, height]).words(data.map(d => ({ text: d.text, size: sizeScale(d.size) }))).padding(5).rotate(() => (Math.random() > 0.6 ? 0 : 90)).font("Poppins").fontWeight(700).fontSize(d => d.size).on("end", draw);
                 currentWordCloudLayout.start();
-
-                function draw(words) {
-                    d3.select(container).append("svg").attr("width", "100%").attr("height", "100%").attr('viewBox', `0 0 ${width} ${height}`).append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")").selectAll("text").data(words).enter().append("text").style("font-size", d => d.size + "px").style("font-family", "Poppins").style("fill", (d, i) => fill(i)).attr("text-anchor", "middle").attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")").text(d => d.text);
-                }
+                function draw(words) { d3.select(container).append("svg").attr("width", "100%").attr("height", "100%").attr('viewBox', `0 0 ${width} ${height}`).append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")").selectAll("text").data(words).enter().append("text").style("font-size", d => d.size + "px").style("font-family", "Poppins").style("fill", (d, i) => fill(i)).attr("text-anchor", "middle").attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")").text(d => d.text); }
             }
-            periodFilter.addEventListener('change', (e) => {
-                 if (currentWordCloudLayout) currentWordCloudLayout.stop();
-                drawWordCloud(wordData[e.target.value]);
-            });
+            periodFilter.addEventListener('change', (e) => { if (currentWordCloudLayout) currentWordCloudLayout.stop(); drawWordCloud(wordData[e.target.value]); });
 
             // --- RACE CHART LOGIC ---
             const raceCtx = document.getElementById('raceChart');
-            let raceChart;
-            let raceInterval;
-            let currentMonthIndex = 0;
-            const raceDataMonthly = [
-                { month: "Fev/23", data: { "Videos Pesados": 50, "Plano Rigging": 10 } },
-                { month: "Mar/23", data: { "Resenha 10y": 80, "CloseFriends CRL": 30, "Binina ou Binino": 15 } },
-                { month: "Abr/23", data: { "Resenha 10y": 100, "Pirâmide CRL": 60, "Sdds Junior": 20, "Vagas Kraft": 15 } },
-                { month: "Jun/23", data: { "Dropbox Nostalgia": 90, "TCC VicPassos": 70, "Niver Thiagão": 40, "Boleto": 30 } },
-                { month: "Set/23", data: { "Enquetes Resenha": 120, "Serra da Mesa": 80, "Voto de Minerva": 50, "Chama o Abapa": 30 } },
-                { month: "Out/23", data: { "Clube Engenharia": 110, "Resenha 10y morreu?": 90, "Harmonização Jiji": 60, "Churrasco": 50, "Pagode": 30 } },
-                { month: "Dez/23", data: { "Confra JosiSide": 95, "Futebol (Palmeiras)": 70, "Marcelinho Carioca": 60, "Vape/Pod": 40, "Natal": 35 } },
-                { month: "Jan/24", data: { "Futebol (Neymar)": 90, "Tretas Futebol": 75, "Vikings": 50, "Caiolas Lésbica": 30, "Renan": 20 } },
-                { month: "Fev/24", data: { "Histórias da Lake": 85, "Daniel Alves": 70, "Cacete/Sorvete": 60, "Blokinho": 50 } },
-                { month: "Jun/24", data: { "Crise da Engenharia": 130, "Concursos Públicos": 110, "Aulas do Zé Roberto": 80, "Tainakan": 60 } },
-                { month: "Out/24", data: { "Barzinho (Enquetes)": 150, "Ditadura Jiji": 100, "IA (Meta)": 90, "Mamilos de Calabresa": 70, "Futebol (Vini Jr.)": 60, "Dress Code": 40 } },
-            ];
-
+            let raceChart; let raceInterval; let currentMonthIndex = 0;
+            const raceDataMonthly = [ { month: "Fev/23", data: { "Videos Pesados": 50, "Plano Rigging": 10 } }, { month: "Mar/23", data: { "Resenha 10y": 80, "CloseFriends CRL": 30, "Binina ou Binino": 15 } }, { month: "Abr/23", data: { "Resenha 10y": 100, "Pirâmide CRL": 60, "Sdds Junior": 20, "Vagas Kraft": 15 } }, { month: "Jun/23", data: { "Dropbox Nostalgia": 90, "TCC VicPassos": 70, "Niver Thiagão": 40, "Boleto": 30 } }, { month: "Set/23", data: { "Enquetes Resenha": 120, "Serra da Mesa": 80, "Voto de Minerva": 50, "Chama o Abapa": 30 } }, { month: "Out/23", data: { "Clube Engenharia": 110, "Resenha 10y morreu?": 90, "Harmonização Jiji": 60, "Churrasco": 50, "Pagode": 30 } }, { month: "Dez/23", data: { "Confra JosiSide": 95, "Futebol (Palmeiras)": 70, "Marcelinho Carioca": 60, "Vape/Pod": 40, "Natal": 35 } }, { month: "Jan/24", data: { "Futebol (Neymar)": 90, "Tretas Futebol": 75, "Vikings": 50, "Caiolas Lésbica": 30, "Renan": 20 } }, { month: "Fev/24", data: { "Histórias da Lake": 85, "Daniel Alves": 70, "Cacete/Sorvete": 60, "Blokinho": 50 } }, { month: "Jun/24", data: { "Crise da Engenharia": 130, "Concursos Públicos": 110, "Aulas do Zé Roberto": 80, "Tainakan": 60 } }, { month: "Out/24", data: { "Barzinho (Enquetes)": 150, "Ditadura Jiji": 100, "IA (Meta)": 90, "Mamilos de Calabresa": 70, "Futebol (Vini Jr.)": 60, "Dress Code": 40 } }, ];
             const months = raceDataMonthly.map(d => d.month);
             const slider = document.getElementById('race-slider');
             slider.max = months.length - 1;
             const playPauseBtn = document.getElementById('play-pause-race');
-
-            function sortDataForChart(monthIndex) {
-                const monthData = raceDataMonthly[monthIndex].data;
-                const sorted = Object.entries(monthData).sort(([,a],[,b]) => b-a).slice(0, 10);
-                return Object.fromEntries(sorted);
-            }
-
-            function updateRaceChart(monthIndex) {
-                const sortedData = sortDataForChart(monthIndex);
-                raceChart.data.labels = Object.keys(sortedData);
-                raceChart.data.datasets[0].data = Object.values(sortedData);
-                raceChart.options.plugins.title.text = `Contagem de Assuntos - ${raceDataMonthly[monthIndex].month}`;
-                raceChart.update();
-            }
-
+            function sortDataForChart(monthIndex) { const monthData = raceDataMonthly[monthIndex].data; const sorted = Object.entries(monthData).sort(([,a],[,b]) => b-a).slice(0, 10); return Object.fromEntries(sorted); }
+            function updateRaceChart(monthIndex) { const sortedData = sortDataForChart(monthIndex); raceChart.data.labels = Object.keys(sortedData); raceChart.data.datasets[0].data = Object.values(sortedData); raceChart.options.plugins.title.text = `Contagem de Assuntos - ${raceDataMonthly[monthIndex].month}`; raceChart.update(); }
             function initializeRaceChart(monthIndex) {
                 const sortedData = sortDataForChart(monthIndex);
-                raceChart = new Chart(raceCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(sortedData),
-                        datasets: [{ data: Object.values(sortedData), backgroundColor: ['#ff00c1', '#a000ff', '#00c1ff', '#00ffc1', '#c1ff00', '#ffc100', '#ff7c00', '#ff005d', '#5d00ff', '#00ff5d'], borderWidth: 0, barThickness: 30 }]
-                    },
-                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: `Contagem de Assuntos - ${raceDataMonthly[monthIndex].month}`, color: '#f0f0f0', font: { size: 18 } } },
-                         scales: { x: { ticks: { color: '#f0f0f0', font: { size: 12 } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }, y: { ticks: { color: '#f0f0f0', font: { size: 14 } }, grid: { display: false } } },
-                        animation: { duration: 800, easing: 'easeInOutCubic' }
-                    }
-                });
+                raceChart = new Chart(raceCtx, { type: 'bar', data: { labels: Object.keys(sortedData), datasets: [{ data: Object.values(sortedData), backgroundColor: ['#ff00c1', '#a000ff', '#00c1ff', '#00ffc1', '#c1ff00', '#ffc100', '#ff7c00', '#ff005d', '#5d00ff', '#00ff5d'], borderWidth: 0, barThickness: 30 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: `Contagem de Assuntos - ${raceDataMonthly[monthIndex].month}`, color: '#f0f0f0', font: { size: 18 } } }, scales: { x: { ticks: { color: '#f0f0f0', font: { size: 12 } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }, y: { ticks: { color: '#f0f0f0', font: { size: 14 } }, grid: { display: false } } }, animation: { duration: 800, easing: 'easeInOutCubic' } } });
             }
-
-            function playRace() {
-                clearInterval(raceInterval);
-                playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pausar';
-                raceInterval = setInterval(() => {
-                    currentMonthIndex = (currentMonthIndex + 1) % months.length;
-                    slider.value = currentMonthIndex;
-                    updateRaceChart(currentMonthIndex);
-                }, 1800);
-            }
-            
-            function pauseRace() {
-                clearInterval(raceInterval);
-                raceInterval = null;
-                playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Continuar';
-            }
-
+            function playRace() { clearInterval(raceInterval); playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pausar'; raceInterval = setInterval(() => { currentMonthIndex = (currentMonthIndex + 1) % months.length; slider.value = currentMonthIndex; updateRaceChart(currentMonthIndex); }, 1800); }
+            function pauseRace() { clearInterval(raceInterval); raceInterval = null; playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Continuar'; }
             playPauseBtn.addEventListener('click', () => { raceInterval ? pauseRace() : playRace(); });
-            slider.addEventListener('input', (e) => {
-                pauseRace();
-                currentMonthIndex = parseInt(e.target.value, 10);
-                updateRaceChart(currentMonthIndex);
-            });
-
+            slider.addEventListener('input', (e) => { pauseRace(); currentMonthIndex = parseInt(e.target.value, 10); updateRaceChart(currentMonthIndex); });
+            
             // Initial calls
             showTab('quiz_dificil');
             drawWordCloud(wordData['Acumulado']);
